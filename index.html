@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <title>Юридическая компания «Есть Решение»</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      userId = "user_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("userId", userId);
+    }
+  </script>
   <style>
     body {
       margin: 0;
@@ -51,7 +58,7 @@
     }
     #chat {
       margin: 32px auto 0 auto;
-      padding: 24px 18px 24px 18px;
+      padding: 24px 18px;
       background: #fff;
       border-radius: 16px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
@@ -149,14 +156,15 @@
 <section class="hero">
   <div class="hero-text">
     <h2>Списание долгов через банкротство</h2>
-    <p>Бесплатная консультация по банкротству. Юрист сейчас онлайн. Сэкономьте время и деньги — нажмите на микрофон.</p>
+    <p>Бесплатная консультация. Юрист онлайн. Нажмите на микрофон и начните разговор.</p>
   </div>
   <div class="hero-img">
     <img src="https://i.imgur.com/57vEn4P.png" alt="Анна, ваш помощник">
   </div>
 </section>
-<!-- СРАЗУ СЮДА ЧАТ -->
+
 <div id="chat"></div>
+
 <section class="section">
   <h3>Почему выбирают нас</h3>
   <ul>
@@ -165,6 +173,7 @@
     <li>✅ Персональный юрист и полное сопровождение</li>
   </ul>
 </section>
+
 <footer>
   <p>© 2025 ЮК «Есть Решение»</p>
 </footer>
@@ -174,7 +183,7 @@
 <div id="status"></div>
 <audio id="audio-player" autoplay></audio>
 
-<!-- ФОРМА ЛИДА -->
+<!-- Лид-форма -->
 <div id="lead-form-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
   <div style="background:#fff; padding:20px 25px; border-radius:10px; width:90%; max-width:400px; position:relative;">
     <button onclick="closeLeadForm()" style="position:absolute; top:10px; right:15px; font-size:18px; background:none; border:none; cursor:pointer;">✕</button>
@@ -196,25 +205,20 @@
   let messages = [];
   let isRunning = false;
   let greeted = false;
-
-  // История для чата (вывод на экран)
   let chatHistory = [];
 
   function renderChat() {
     const chat = document.getElementById('chat');
     chat.innerHTML = chatHistory.map(msg => {
-      if (msg.role === "user")   return `<div class="chat-msg"><span class="chat-user">🧑 Пользователь:</span> ${escapeHTML(msg.content)}</div>`;
+      if (msg.role === "user") return `<div class="chat-msg"><span class="chat-user">🧑 Пользователь:</span> ${escapeHTML(msg.content)}</div>`;
       if (msg.role === "assistant") return `<div class="chat-msg"><span class="chat-bot">🤖 Анна:</span> ${escapeHTML(msg.content)}</div>`;
       return '';
     }).join("");
     chat.scrollTop = chat.scrollHeight;
   }
 
-  // чтобы избежать XSS и глюков с тэгами
   function escapeHTML(str) {
-    return String(str)
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+    return String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   async function recognizeSpeech(timeout = 10000) {
@@ -247,7 +251,7 @@
     const res = await fetch(OPENAI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: messages.slice(-10) })
+      body: JSON.stringify({ userId, messages: messages.slice(-10) })
     });
     const data = await res.json();
     if (data.choices?.[0]?.message?.triggerForm) openLeadForm();
@@ -311,8 +315,8 @@
 
   document.getElementById("mic-btn").onclick = () => {
     if (!isRunning) {
-      chatHistory = []; // Новый диалог — чистим чат
-      messages = [];    // Новый диалог — чистим messages!
+      chatHistory = [];
+      messages = [];
       renderChat();
       dialogLoop();
     }
@@ -342,21 +346,19 @@
     const res = await fetch(LEAD_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone })
+      body: JSON.stringify({ userId, name, phone })
     });
     const data = await res.json();
     const msg = data.message || "Спасибо! Мы свяжемся с вами.";
-    // пишем в чат и сразу озвучиваем
     chatHistory.push({ role: "assistant", content: msg });
     renderChat();
     await playTTS(msg);
   }
 
-  // Маска телефона
   document.getElementById("phone").addEventListener("input", function(e) {
     let val = this.value.replace(/\D/g, "");
-    if (val.startsWith("89")) val = "9" + val.slice(2); // Если кто-то ввёл 89...
-    if (val.startsWith("79")) val = val.slice(1); // Если 7 сразу
+    if (val.startsWith("89")) val = "9" + val.slice(2);
+    if (val.startsWith("79")) val = val.slice(1);
     if (val.length > 10) val = val.slice(0, 10);
     let result = "+7";
     if (val.length > 0) result += " " + val.slice(0, 3);
