@@ -301,7 +301,6 @@ async function dialogLoop() {
       chatHistory.push({ role: "user", content: userText });
       renderChat();
       const reply = await askGPT();
-      messages.push({ role: "assistant", content: reply });
       chatHistory.push({ role: "assistant", content: reply });
       renderChat();
       await playTTS(reply);
