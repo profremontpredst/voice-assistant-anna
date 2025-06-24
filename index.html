@@ -247,139 +247,143 @@
     });
   }
 
-  async function askGPT() {
-    const res = await fetch(OPENAI_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, messages: messages.slice(-10) })
-    });
-    const data = await res.json();
-    if (data.choices?.[0]?.message?.triggerForm) openLeadForm();
-    return data.choices?.[0]?.message?.content || "❌ GPT не ответил";
-  }
+async function askGPT(messages) {
+  const res = await fetch(OPENAI_PROXY_URL, {
+    method: \"POST\",
+    headers: { \"Content-Type\": \"application/json\" },
+    body: JSON.stringify({ userId, messages: messages.slice(-10) })
+  });
+  const data = await res.json();
+  if (data.choices?.[0]?.message?.triggerForm) openLeadForm();
+  return data.choices?.[0]?.message?.content || \"❌ GPT не ответил\";
+}
 
-  async function playTTS(text) {
-    const indicator = document.getElementById("voice-indicator");
-    indicator.style.display = "block";
-    const res = await fetch(STREAM_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    const audioBlob = new Blob([await res.arrayBuffer()], { type: "audio/mpeg" });
-    if (audioBlob.size < 1000) {
-      indicator.style.display = "none";
-      return;
-    }
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = document.getElementById("audio-player");
-    audio.src = audioUrl;
-    audio.load();
-    await audio.play().catch(() => {});
-    await new Promise(resolve => {
-      audio.onended = resolve;
-      audio.onerror = resolve;
-    });
-    indicator.style.display = "none";
+async function playTTS(text) {
+  const indicator = document.getElementById(\"voice-indicator\");
+  indicator.style.display = \"block\";
+  const res = await fetch(STREAM_URL, {
+    method: \"POST\",
+    headers: { \"Content-Type\": \"application/json\" },
+    body: JSON.stringify({ text })
+  });
+  const audioBlob = new Blob([await res.arrayBuffer()], { type: \"audio/mpeg\" });
+  if (audioBlob.size < 1000) {
+    indicator.style.display = \"none\";
+    return;
   }
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = document.getElementById(\"audio-player\");
+  audio.src = audioUrl;
+  audio.load();
+  await audio.play().catch(() => {});
+  await new Promise(resolve => {
+    audio.onended = resolve;
+    audio.onerror = resolve;
+  });
+  indicator.style.display = \"none\";
+}
 
 async function dialogLoop() {
   if (isRunning) return;
   isRunning = true;
+
+  let sessionHistory = [];
+
   try {
     if (!greeted) {
       greeted = true;
-      const reply = "<prosody rate='medium'><emphasis level='moderate'>Здравствуйте!</emphasis> Я Анна, ваш голосовой консультант. <break time='400ms'/> Можете задать вопрос — я помогу разобраться.</prosody>";
-      chatHistory.push({ role: "assistant", content: reply });
+      const reply = \"<prosody rate='medium'><emphasis level='moderate'>Здравствуйте!</emphasis> Я Анна, ваш голосовой консультант. <break time='400ms'/> Можете задать вопрос — я помогу разобраться.</prosody>\";
+      sessionHistory.push({ role: \"assistant\", content: reply });
       renderChat();
       await playTTS(reply);
     }
+
     while (true) {
       await new Promise(r => setTimeout(r, 600));
       const userText = await recognizeSpeech();
-      messages.push({ role: "user", content: userText });
-      chatHistory.push({ role: "user", content: userText });
+      sessionHistory.push({ role: \"user\", content: userText });
       renderChat();
-      const reply = await askGPT();
-      chatHistory.push({ role: "assistant", content: reply });
+
+      const reply = await askGPT(sessionHistory);
+      sessionHistory.push({ role: \"assistant\", content: reply });
       renderChat();
+
       await playTTS(reply);
     }
   } catch (err) {
-    console.warn("💥 Ошибка:", err);
+    console.warn(\"💥 Ошибка:\", err);
   } finally {
     isRunning = false;
     try {
-      await fetch("https://script.google.com/macros/s/AKfycbwjw69VW-8l0_Sb-1-vXMVF1gRUeOVpQoxzpVsAuS5ZLWrdu3HPa_CAX8Oq0mHTYBbG/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch(\"https://script.google.com/macros/s/AKfycbwjw69VW-8l0_Sb-1-vXMVF1gRUeOVpQoxzpVsAuS5ZLWrdu3HPa_CAX8Oq0mHTYBbG/exec\", {
+        method: \"POST\",
+        headers: { \"Content-Type\": \"application/json\" },
         body: JSON.stringify({
           user_id: userId,
-          dialog: chatHistory.map(m => `${m.role}: ${m.content}`).join("\n")
+          dialog: sessionHistory.map(m => `${m.role}: ${m.content}`).join(\"\\n\")
         })
       });
     } catch (e) {
-      console.warn("Не удалось сохранить диалог:", e);
+      console.warn(\"Не удалось сохранить диалог:\", e);
     }
   }
 }
 
-  document.getElementById("mic-btn").onclick = () => {
-    if (!isRunning) {
-      chatHistory = [];
-      messages = [];
-      renderChat();
-      dialogLoop();
-    }
-  };
-
-  function openLeadForm() {
-    document.getElementById('lead-form-overlay').style.display = 'flex';
-    document.getElementById('lead-form').reset();
-    setTimeout(() => {
-      document.getElementById('name').focus();
-    }, 200);
-  }
-
-  function closeLeadForm() {
-    document.getElementById('lead-form-overlay').style.display = 'none';
-  }
-
-  async function submitLead(event) {
-    event.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    if (!/^(\+7\s?9\d{2}\s?\d{3}-\d{2}-\d{2})$/.test(phone)) {
-      alert("Введите корректный номер в формате +7 9xx xxx-xx-xx");
-      return;
-    }
-    closeLeadForm();
-    const res = await fetch(LEAD_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, name, phone })
-    });
-    const data = await res.json();
-    const msg = data.message || "Спасибо! Мы свяжемся с вами.";
-    chatHistory.push({ role: "assistant", content: msg });
+document.getElementById(\"mic-btn\").onclick = () => {
+  if (!isRunning) {
     renderChat();
-    await playTTS(msg);
+    dialogLoop();
   }
+};
 
-  document.getElementById("phone").addEventListener("input", function(e) {
-    let val = this.value.replace(/\D/g, "");
-    if (val.startsWith("89")) val = "9" + val.slice(2);
-    if (val.startsWith("79")) val = val.slice(1);
-    if (val.length > 10) val = val.slice(0, 10);
-    let result = "+7";
-    if (val.length > 0) result += " " + val.slice(0, 3);
-    if (val.length > 3) result += " " + val.slice(3, 6);
-    if (val.length > 6) result += "-" + val.slice(6, 8);
-    if (val.length > 8) result += "-" + val.slice(8, 10);
-    this.value = result;
+function openLeadForm() {
+  document.getElementById('lead-form-overlay').style.display = 'flex';
+  document.getElementById('lead-form').reset();
+  setTimeout(() => {
+    document.getElementById('name').focus();
+  }, 200);
+}
+
+function closeLeadForm() {
+  document.getElementById('lead-form-overlay').style.display = 'none';
+}
+
+async function submitLead(event) {
+  event.preventDefault();
+  const name = document.getElementById(\"name\").value.trim();
+  const phone = document.getElementById(\"phone\").value.trim();
+  if (!/^(+7\\s?9\\d{2}\\s?\\d{3}-\\d{2}-\\d{2})$/.test(phone)) {
+    alert(\"Введите корректный номер в формате +7 9xx xxx-xx-xx\");
+    return;
+  }
+  closeLeadForm();
+  const res = await fetch(LEAD_URL, {
+    method: \"POST\",
+    headers: { \"Content-Type\": \"application/json\" },
+    body: JSON.stringify({ userId, name, phone })
   });
+  const data = await res.json();
+  const msg = data.message || \"Спасибо! Мы свяжемся с вами.\";
+  sessionHistory.push({ role: \"assistant\", content: msg });
+  renderChat();
+  await playTTS(msg);
+}
 
-  window.openLeadForm = openLeadForm;
+document.getElementById(\"phone\").addEventListener(\"input\", function(e) {
+  let val = this.value.replace(/\\D/g, \"\");
+  if (val.startsWith(\"89\")) val = \"9\" + val.slice(2);
+  if (val.startsWith(\"79\")) val = val.slice(1);
+  if (val.length > 10) val = val.slice(0, 10);
+  let result = \"+7\";
+  if (val.length > 0) result += \" \" + val.slice(0, 3);
+  if (val.length > 3) result += \" \" + val.slice(3, 6);
+  if (val.length > 6) result += \"-\" + val.slice(6, 8);
+  if (val.length > 8) result += \"-\" + val.slice(8, 10);
+  this.value = result;
+});
+
+window.openLeadForm = openLeadForm;
+
 </script>
 </body>
 </html>
