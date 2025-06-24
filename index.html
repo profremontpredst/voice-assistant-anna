@@ -357,14 +357,19 @@ async function dialogLoop() {
   async function submitLead(event) {
   event.preventDefault();
   const name = document.getElementById("name").value.trim();
-  const rawPhone = document.getElementById("phone").value.replace(/\D/g, "");
+  let rawPhone = document.getElementById("phone").value.replace(/\D/g, "");
 
-  if (rawPhone.length !== 10) {
-    alert("Введите корректный номер телефона (10 цифр без +7)");
+  // 🧠 Нормализуем номер к виду 79991234567
+  if (rawPhone.startsWith("8")) rawPhone = "7" + rawPhone.slice(1);
+  if (rawPhone.startsWith("9")) rawPhone = "7" + rawPhone;
+
+  // ✅ Финальная проверка — должно быть 11 цифр, начинаться с 7
+  if (!/^7\d{10}$/.test(rawPhone)) {
+    alert("Введите корректный номер телефона");
     return;
   }
 
-  const phone = "+7" + rawPhone;
+  const phone = "+" + rawPhone;
 
   closeLeadForm();
 
