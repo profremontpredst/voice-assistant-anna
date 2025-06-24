@@ -307,25 +307,19 @@
       }
     } catch (err) {
       console.warn("💥 Ошибка:", err);
-   } finally {
+  } finally {
   isRunning = false;
-
-  // Не отправляем пустой или слишком короткий диалог
-  if (chatHistory.length >= 4) {
-    try {
-      await fetch("https://script.google.com/macros/s/AKfycbwjw69VW-8l0_Sb-1-vXMVF1gRUeOVpQoxzpVsAuS5ZLWrdu3HPa_CAX8Oq0mHTYBbG/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          dialog: chatHistory.map(m => `${m.role}: ${m.content}`).join("\n")
-        })
-      });
-    } catch (e) {
-      console.warn("Не удалось сохранить диалог:", e);
-    }
-  } else {
-    console.log("Диалог слишком короткий, не сохраняем.");
+  try {
+    await fetch("https://script.google.com/macros/s/AKfycbwjw69VW-8l0_Sb-1-vXMVF1gRUeOVpQoxzpVsAuS5ZLWrdu3HPa_CAX8Oq0mHTYBbG/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userId,
+        dialog: chatHistory.map(m => `${m.role}: ${m.content}`).join("\n")
+      })
+    });
+  } catch (e) {
+    console.warn("Не удалось сохранить диалог:", e);
   }
 }
 
