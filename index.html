@@ -191,7 +191,7 @@
     <p style="margin-bottom:10px;">Мы перезвоним вам в ближайшее время</p>
     <form id="lead-form" onsubmit="submitLead(event)">
       <input type="text" id="name" name="name" placeholder="Ваше имя" required style="width:100%;padding:10px;margin-bottom:10px;">
-      <input type="tel" id="phone" name="phone" placeholder="+7 999 999-99-99" required style="width:100%;padding:10px;margin-bottom:15px;">
+      <input type="tel" id="phone" name="phone" value="+7" required style="width:100%;padding:10px;margin-bottom:15px;" maxlength="12">
       <button type="submit" style="width:100%;padding:10px;background:#003366;color:#fff;border:none;border-radius:5px;">Отправить</button>
     </form>
   </div>
@@ -386,20 +386,17 @@ async function dialogLoop() {
   await playTTS(msg);
 }
 
-  document.getElementById("phone").addEventListener("input", function(e) {
-    let val = this.value.replace(/\D/g, "");
-    if (val.startsWith("89")) val = "9" + val.slice(2);
-    if (val.startsWith("79")) val = val.slice(1);
-    if (val.length > 10) val = val.slice(0, 10);
-    let result = "+7";
-    if (val.length > 0) result += " " + val.slice(0, 3);
-    if (val.length > 3) result += " " + val.slice(3, 6);
-    if (val.length > 6) result += "-" + val.slice(6, 8);
-    if (val.length > 8) result += "-" + val.slice(8, 10);
-    this.value = result;
-  });
+   window.openLeadForm = openLeadForm;
 
-  window.openLeadForm = openLeadForm;
+  document.getElementById("phone").addEventListener("input", function () {
+    if (!this.value.startsWith("+7")) {
+      this.value = "+7";
+    }
+
+    const digits = this.value.slice(2).replace(/\D/g, "").slice(0, 10);
+    this.value = "+7" + digits;
+  });
 </script>
 </body>
 </html>
+
