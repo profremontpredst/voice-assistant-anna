@@ -202,10 +202,11 @@
   const STREAM_URL = "https://elevenlabs-proxy-c781.onrender.com/stream";
   const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
 
-  let messages = [];
-  let isRunning = false;
-  let greeted = false;
-  let chatHistory = [];
+ let messages = [];
+let isRunning = false;
+let greeted = false;
+let chatHistory = [];
+let sessionHistory = []; // 👈 вот оно, чтоб форма не падала
 
   function renderChat() {
     const chat = document.getElementById('chat');
