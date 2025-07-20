@@ -6,121 +6,93 @@
   <title>Голосовой помощник</title>
   <style>
     body {
-      font-family: sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    .chat-container {
       display: flex;
       flex-direction: column;
       height: 100vh;
-    }
-
-    #chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      max-height: 100vh;
       overflow: hidden;
     }
-
-    #chat {
-      flex: 1;
-      padding: 16px;
+    .messages {
+      flex-grow: 1;
+      padding: 20px;
       overflow-y: auto;
-      height: 100%;
+      background: white;
     }
-
     .message {
-      margin: 8px 0;
+      margin-bottom: 10px;
     }
-
     .user {
       font-weight: bold;
       color: #003366;
     }
-
-    .bot {
-      color: #111;
-    }
-
-    #input-container {
+    .input-container {
       display: flex;
-      padding: 10px;
       border-top: 1px solid #ccc;
-      background: #fafafa;
+      padding: 10px;
+      background-color: #fff;
     }
-
-    #user-input {
+    .input-container input {
       flex: 1;
       padding: 10px;
-      font-size: 1rem;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px;
+      font-size: 16px;
     }
-
-    #send-btn, #mic-btn {
-      margin-left: 8px;
-      padding: 10px 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      background: #003366;
-      color: white;
+    .input-container button {
+      padding: 10px;
+      margin-left: 10px;
+      background-color: #003366;
+      color: #fff;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
+      cursor: pointer;
     }
-
-    #mic-btn {
-      background: #666;
-    }
-
-    /* Всплывающая форма */
     #lead-form-overlay {
-      display: none;
       position: fixed;
       top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      justify-content: center;
+      width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
       align-items: center;
-      z-index: 9999;
+      justify-content: center;
     }
-
     #lead-form-popup {
       background: white;
-      padding: 24px;
-      border-radius: 12px;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
       width: 90%;
-      max-width: 360px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.2);
     }
-
     .close-btn {
-      float: right;
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      cursor: pointer;
       background: none;
       border: none;
       font-size: 18px;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="chat"></div>
-    <div id="input-container">
+  <div class="chat-container">
+    <div class="messages" id="chat"></div>
+    <div class="input-container">
       <input type="text" id="user-input" placeholder="Введите сообщение..." />
-      <button id="mic-btn">🎙️</button>
-      <button id="send-btn">➤</button>
+      <button onclick="startVoiceInput()">🎤</button>
+      <button onclick="sendMessage()">➤</button>
     </div>
   </div>
 
-  <!-- Форма -->
+  <!-- Всплывающая форма -->
   <div id="lead-form-overlay">
     <div id="lead-form-popup">
-      <button class="close-btn" onclick="closeLeadForm()">×</button>
+      <button class="close-btn" onclick="closeLeadForm()">X</button>
       <h3>Оставьте заявку</h3>
       <p>Мы перезвоним вам в ближайшее время</p>
       <form id="lead-form" onsubmit="submitLead(event)">
@@ -134,84 +106,84 @@
   const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
   const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
 
+  const chat = document.getElementById('chat');
+  const userInput = document.getElementById('user-input');
+
   let messages = [];
-  let chatHistory = [];
   let userId = localStorage.getItem("userId");
   if (!userId) {
     userId = "user_" + Math.random().toString(36).substr(2, 9);
     localStorage.setItem("userId", userId);
   }
 
-  const chat = document.getElementById("chat");
-  const input = document.getElementById("user-input");
-  const sendBtn = document.getElementById("send-btn");
-  const micBtn = document.getElementById("mic-btn");
-
-  sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  function appendMessage(sender, text) {
-    const div = document.createElement("div");
-    div.className = "message";
-    div.innerHTML = `<strong class="${sender === "Пользователь" ? "user" : "bot"}">${sender}:</strong> ${text}`;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
   async function sendMessage() {
-    const text = input.value.trim();
+    const text = userInput.value.trim();
     if (!text) return;
-    appendMessage("Пользователь", text);
-    input.value = "";
+
+    appendMessage('Пользователь', text);
+    userInput.value = '';
 
     messages.push({ role: "user", content: text });
 
     const res = await fetch(OPENAI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, user: userId })
+      body: JSON.stringify({ message: text, userId })
     });
+
     const data = await res.json();
-    const reply = data.reply;
+    const gptMessage = data.message;
+    appendMessage("🤖 Анна", gptMessage);
+    messages.push({ role: "assistant", content: gptMessage });
 
-    if (reply.includes("<prompt>form</prompt>")) {
-      document.getElementById("lead-form-overlay").style.display = "flex";
+    if (gptMessage.toLowerCase().includes("оставьте номер") || gptMessage.toLowerCase().includes("перезвонить")) {
+      showLeadForm();
     }
+  }
 
-    appendMessage("🤖", reply.replace("<prompt>form</prompt>", ""));
-    messages.push({ role: "assistant", content: reply });
+  function appendMessage(sender, text) {
+    const msg = document.createElement('div');
+    msg.className = 'message';
+    msg.innerHTML = `<span class="user">${sender}:</span> ${text}`;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function startVoiceInput() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "ru-RU";
+    recognition.start();
+
+    recognition.onresult = function (event) {
+      userInput.value = event.results[0][0].transcript;
+    };
+  }
+
+  function showLeadForm() {
+    document.getElementById("lead-form-overlay").style.display = "flex";
   }
 
   function closeLeadForm() {
     document.getElementById("lead-form-overlay").style.display = "none";
   }
 
-  async function submitLead(event) {
+  function submitLead(event) {
     event.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    await fetch(LEAD_URL, {
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+
+    fetch(LEAD_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, phone, userId })
     });
+
     closeLeadForm();
-    alert("Заявка отправлена!");
+    appendMessage("🤖 Анна", "Спасибо! Мы скоро свяжемся с вами.");
   }
 
-  // 🎙️ Голосовой ввод
-  micBtn.addEventListener("click", () => {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "ru-RU";
-    recognition.start();
-    recognition.onresult = (event) => {
-      input.value = event.results[0][0].transcript;
-    };
+  userInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendMessage();
   });
 </script>
 </body>
