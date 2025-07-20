@@ -5,130 +5,163 @@
   <title>Юридическая компания «Есть Решение»</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
-      background: #f2f2f2;
+      background: #f9f9f9;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-
     header {
       background-color: #003366;
       padding: 20px;
       color: white;
       text-align: center;
     }
-
     header h1 {
       margin: 0;
-      font-size: 26px;
+      font-size: 24px;
     }
-
-    .chat-container {
+    #chat-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    #chat-box {
+      width: 100%;
       max-width: 600px;
-      height: 500px;
-      margin: 30px auto;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      background: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      height: 80vh;
     }
-
-    .chat-messages {
+    #chat-messages {
       flex: 1;
-      padding: 15px;
       overflow-y: auto;
-      border-bottom: 1px solid #eee;
-      font-size: 16px;
+      margin-bottom: 12px;
     }
-
     .chat-msg {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      line-height: 1.5;
     }
-
     .chat-user {
-      color: #1565c0;
+      color: #0b63ce;
       font-weight: bold;
-      margin-bottom: 2px;
-      display: block;
     }
-
     .chat-bot {
       color: #008f57;
       font-weight: bold;
-      margin-bottom: 2px;
-      display: block;
     }
-
-    .chat-input-wrapper {
+    #input-area {
       display: flex;
-      border-top: 1px solid #eee;
+      gap: 8px;
     }
-
-    .chat-input-wrapper input {
+    #user-input {
       flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 0 0 0 10px;
-      outline: none;
+      padding: 10px;
       font-size: 16px;
     }
-
-    .chat-input-wrapper button {
-      padding: 0 16px;
+    #send-btn {
+      padding: 10px 16px;
+      background: #003366;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    footer {
+      background: #003366;
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+    #lead-form-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #lead-form-popup {
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+    #lead-form-popup h3 {
+      margin-top: 0;
+    }
+    #lead-form-popup button.close-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
       font-size: 18px;
       border: none;
       background: none;
       cursor: pointer;
     }
-
-    .chat-input-wrapper button:hover {
-      background: #f3f3f3;
-    }
-
-    footer {
-      background-color: #003366;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
   </style>
 </head>
 <body>
-<header>
-  <h1>Юридическая компания «Есть Решение»</h1>
-</header>
+  <header>
+    <h1>Юридическая компания «Есть Решение»</h1>
+  </header>
 
-<div class="chat-container">
-  <div class="chat-messages" id="chat"></div>
-  <div class="chat-input-wrapper">
-    <input type="text" id="text-input" placeholder="Введите сообщение..." />
-    <button id="send-btn">➤</button>
-    <button id="mic-btn" title="Голосовое сообщение">🎤</button>
+  <div id="chat-container">
+    <div id="chat-box">
+      <div id="chat-messages"></div>
+      <div id="input-area">
+        <input type="text" id="user-input" placeholder="Введите сообщение..." />
+        <button id="send-btn">Отправить</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<footer>
-  <p>© 2025 ЮК «Есть Решение»</p>
-</footer>
+  <footer>
+    <p>© 2025 ЮК «Есть Решение»</p>
+  </footer>
 
+  <!-- Всплывающая форма -->
+  <div id="lead-form-overlay">
+    <div id="lead-form-popup">
+      <button class="close-btn" onclick="closeLeadForm()">✕</button>
+      <h3>Оставьте заявку</h3>
+      <p>Мы перезвоним вам в ближайшее время</p>
+      <form id="lead-form" onsubmit="submitLead(event)">
+        <input type="text" id="name" name="name" placeholder="Ваше имя" required style="width:100%;padding:10px;margin-bottom:10px;">
+        <input type="tel" id="phone" name="phone" value="+7" required style="width:100%;padding:10px;margin-bottom:15px;" maxlength="12">
+        <button type="submit" style="width:100%;padding:10px;background:#003366;color:#fff;border:none;border-radius:5px;">Отправить</button>
+      </form>
+    </div>
+  </div>
 <script>
+  const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
+  const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+
+  let messages = [];
+  let chatHistory = [];
   let userId = localStorage.getItem("userId");
   if (!userId) {
     userId = "user_" + Math.random().toString(36).substr(2, 9);
     localStorage.setItem("userId", userId);
   }
 
-  const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
-  const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
-  let messages = [];
-  let isRunning = false;
-  let chatHistory = [];
-
   function renderChat() {
-    const chat = document.getElementById('chat');
+    const chat = document.getElementById('chat-messages');
     chat.innerHTML = chatHistory.map(msg => {
       if (msg.role === "user") return `<div class="chat-msg"><span class="chat-user">🧑 Пользователь:</span> ${escapeHTML(msg.content)}</div>`;
       if (msg.role === "assistant") return `<div class="chat-msg"><span class="chat-bot">🤖 Анна:</span> ${escapeHTML(msg.content)}</div>`;
@@ -141,77 +174,80 @@
     return String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  document.getElementById("send-btn").onclick = () => {
-    const input = document.getElementById("text-input");
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = "";
+  async function askGPT(text) {
     messages.push({ role: "user", content: text });
-    chatHistory.push({ role: "user", content: text });
-    renderChat();
-    handleReply(text);
-  };
-
-  async function handleReply(userText) {
-    const reply = await askGPT();
-    messages.push({ role: "assistant", content: reply });
-    chatHistory.push({ role: "assistant", content: reply });
-    renderChat();
-  }
-
-  async function recognizeSpeech(timeout = 10000) {
-    return new Promise((resolve, reject) => {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return reject("SpeechRecognition не поддерживается");
-      const recognition = new SpeechRecognition();
-      recognition.lang = "ru-RU";
-      recognition.interimResults = false;
-      const timer = setTimeout(() => {
-        recognition.stop();
-        reject("⏱️ Время ожидания истекло");
-      }, timeout);
-      recognition.onresult = (event) => {
-        clearTimeout(timer);
-        recognition.stop();
-        const text = event.results[0][0].transcript;
-        resolve(text);
-      };
-      recognition.onerror = (err) => {
-        clearTimeout(timer);
-        recognition.stop();
-        reject(err.error || "Ошибка распознавания");
-      };
-      recognition.start();
-    });
-  }
-
-  document.getElementById("mic-btn").onclick = async () => {
-    try {
-      const userText = await recognizeSpeech();
-      if (!userText || userText.trim().length < 1) return;
-      messages.push({ role: "user", content: userText });
-      chatHistory.push({ role: "user", content: userText });
-      renderChat();
-      await handleReply(userText);
-    } catch (err) {
-      console.warn("Ошибка распознавания:", err);
-    }
-  };
-
-  async function askGPT() {
     const res = await fetch(OPENAI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, messages: messages.slice(-10) })
     });
     const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content || "❌ GPT не ответил";
+    messages.push({ role: "assistant", content: reply });
+    chatHistory.push({ role: "assistant", content: reply });
+    renderChat();
     if (data.choices?.[0]?.message?.triggerForm) openLeadForm();
-    return data.choices?.[0]?.message?.content || "❌ GPT не ответил";
   }
 
-  function openLeadForm() {
-    alert("📝 Всплывающая форма: тут можно вставить код формы.");
+  document.getElementById("send-btn").onclick = () => {
+    const input = document.getElementById("user-input");
+    const text = input.value.trim();
+    if (!text) return;
+    chatHistory.push({ role: "user", content: text });
+    renderChat();
+    input.value = "";
+    askGPT(text);
   }
+
+  document.getElementById("user-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById("send-btn").click();
+    }
+  });
+
+  function openLeadForm() {
+    document.getElementById("lead-form-overlay").style.display = "flex";
+    document.getElementById("lead-form").reset();
+    setTimeout(() => {
+      document.getElementById("name").focus();
+    }, 200);
+  }
+
+  function closeLeadForm() {
+    document.getElementById("lead-form-overlay").style.display = "none";
+  }
+
+  async function submitLead(event) {
+    event.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    let rawPhone = document.getElementById("phone").value.replace(/\D/g, "");
+    if (rawPhone.startsWith("8")) rawPhone = "7" + rawPhone.slice(1);
+    if (rawPhone.startsWith("9")) rawPhone = "7" + rawPhone;
+    if (!/^7\d{10}$/.test(rawPhone)) {
+      alert("Введите корректный номер телефона");
+      return;
+    }
+    const phone = "+" + rawPhone;
+    closeLeadForm();
+    const res = await fetch(LEAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, name, phone })
+    });
+    const data = await res.json();
+    const msg = data.message || "Спасибо! Мы свяжемся с вами.";
+    chatHistory.push({ role: "assistant", content: msg });
+    renderChat();
+  }
+
+  document.getElementById("phone").addEventListener("input", function () {
+    if (!this.value.startsWith("+7")) {
+      this.value = "+7";
+    }
+    const digits = this.value.slice(2).replace(/\D/g, "").slice(0, 10);
+    this.value = "+7" + digits;
+  });
 </script>
 </body>
 </html>
