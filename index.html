@@ -3,29 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Голосовой помощник</title>
+  <title>Встроенный помощник</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      height: 100%;
-      overflow: hidden;
+      background: #f8f8f8;
     }
 
-    .chat-container {
+    .fake-block {
+      padding: 60px 20px;
+      background: #ddd;
+      text-align: center;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .assistant-block {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 500px;
     }
 
     .messages {
-      flex-grow: 0;
-      height: 60vh;
-      padding: 10px;
+      flex-grow: 1;
       overflow-y: auto;
-      background: white;
+      padding: 15px;
+      background: #fefefe;
     }
 
     .message {
@@ -85,21 +95,9 @@
     }
 
     @media (max-width: 768px) {
-      .chat-container {
-        height: 100dvh;
-      }
-      .messages {
-        height: 55vh;
-        padding: 5px;
-      }
-      .input-container {
-        padding: 5px;
-      }
-      .input-container input {
-        font-size: 14px;
-      }
-      .input-container button {
-        padding: 8px;
+      .assistant-block {
+        height: 450px;
+        border-radius: 0;
       }
     }
 
@@ -135,7 +133,11 @@
   </style>
 </head>
 <body>
-  <div class="chat-container">
+
+  <div class="fake-block">🔼 Блок контента над ассистентом 🔼</div>
+
+  <!-- Ассистент как обычный блок -->
+  <div class="assistant-block">
     <div class="messages" id="chat"></div>
     <div class="input-container">
       <input type="text" id="user-input" placeholder="Введите сообщение..." />
@@ -144,7 +146,9 @@
     </div>
   </div>
 
-  <!-- Всплывающая форма -->
+  <div class="fake-block">🔽 Блок под ассистентом 🔽</div>
+
+  <!-- Форма заявки -->
   <div id="lead-form-overlay">
     <div id="lead-form-popup">
       <button class="close-btn" onclick="closeLeadForm()">X</button>
