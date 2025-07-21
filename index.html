@@ -5,110 +5,141 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Голосовой помощник</title>
   <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    height: 100vh;
-    overflow: hidden;
-  }
-  .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-  .messages {
-    flex-grow: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background: white;
-  }
-  .message {
-    margin-bottom: 10px;
-  }
-  .user {
-    font-weight: bold;
-    color: #003366;
-  }
-  .input-container {
-    display: flex;
-    border-top: 1px solid #ccc;
-    padding: 10px;
-    background-color: #fff;
-  }
-  .input-container input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  .input-container button {
-    padding: 10px;
-    margin-left: 10px;
-    background-color: #003366;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      height: 100%;
+      overflow: hidden;
+    }
 
-  @media (max-width: 768px) {
     .chat-container {
+      display: flex;
+      flex-direction: column;
       height: 100vh;
     }
-    .messages {
-      flex-grow: 1;
-      padding: 5px;
-      min-height: 0;
-    }
-    .input-container {
-      padding: 5px;
-    }
-    .input-container input {
-      font-size: 14px;
-    }
-    .input-container button {
-      padding: 8px;
-    }
-  }
 
-  #lead-form-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(0,0,0,0.4);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-  }
-  #lead-form-popup {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-  }
-  .close-btn {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-size: 18px;
-  }
-</style>
+    .messages {
+      flex-grow: 0;
+      height: 60vh;
+      padding: 10px;
+      overflow-y: auto;
+      background: white;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .from-user {
+      align-self: flex-end;
+      background: rgba(0, 102, 204, 0.08);
+    }
+
+    .from-bot {
+      align-self: flex-start;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .input-container {
+      display: flex;
+      border-top: 1px solid #ccc;
+      padding: 10px;
+      background-color: #fff;
+      align-items: center;
+    }
+
+    .input-container input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .input-container button {
+      padding: 10px;
+      margin-left: 10px;
+      background-color: #003366;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .recording-dot {
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 100dvh;
+      }
+      .messages {
+        height: 55vh;
+        padding: 5px;
+      }
+      .input-container {
+        padding: 5px;
+      }
+      .input-container input {
+        font-size: 14px;
+      }
+      .input-container button {
+        padding: 8px;
+      }
+    }
+
+    #lead-form-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    #lead-form-popup {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 18px;
+    }
+  </style>
 </head>
 <body>
   <div class="chat-container">
     <div class="messages" id="chat"></div>
     <div class="input-container">
       <input type="text" id="user-input" placeholder="Введите сообщение..." />
-      <button onclick="startVoiceInput()">🎤</button>
+      <button onclick="startVoiceInput()">🎤<span class="recording-dot" id="rec-dot"></span></button>
       <button onclick="sendMessage()">➤</button>
     </div>
   </div>
@@ -126,6 +157,7 @@
       </form>
     </div>
   </div>
+
 <script>
   const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
   const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
@@ -144,7 +176,7 @@
     const text = userInput.value.trim();
     if (!text) return;
 
-    appendMessage("Пользователь", text);
+    appendMessage(text, true);
     userInput.value = "";
     messages.push({ role: "user", content: text });
 
@@ -158,16 +190,16 @@
     const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
     const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
 
-    appendMessage("🤖 Анна", gptMessage);
+    appendMessage(gptMessage, false);
     messages.push({ role: "assistant", content: gptMessage });
 
     if (triggerForm) showLeadForm();
   }
 
-  function appendMessage(sender, text) {
+  function appendMessage(text, isUser) {
     const msg = document.createElement("div");
-    msg.className = "message";
-    msg.innerHTML = `<span class="user">${sender}:</span> ${text}`;
+    msg.className = "message " + (isUser ? "from-user" : "from-bot");
+    msg.textContent = text;
     chat.appendChild(msg);
     chat.scrollTop = chat.scrollHeight;
   }
@@ -176,8 +208,14 @@
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = "ru-RU";
     recognition.start();
+    document.getElementById("rec-dot").style.display = "block";
+
     recognition.onresult = function (event) {
       userInput.value = event.results[0][0].transcript;
+    };
+
+    recognition.onend = function () {
+      document.getElementById("rec-dot").style.display = "none";
     };
   }
 
@@ -201,7 +239,7 @@
     });
 
     closeLeadForm();
-    appendMessage("🤖 Анна", "Спасибо! Мы скоро свяжемся с вами.");
+    appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
   }
 
   userInput.addEventListener("keydown", function (e) {
