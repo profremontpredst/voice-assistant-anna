@@ -9,12 +9,14 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
     .chat-container {
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      max-height: 100vh;
+      flex-grow: 1;
       overflow: hidden;
     }
     .messages {
@@ -52,6 +54,20 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    @media (max-width: 768px) {
+      .messages {
+        padding: 10px;
+      }
+      .input-container {
+        padding: 5px;
+      }
+      .input-container input {
+        font-size: 14px;
+      }
+      .input-container button {
+        padding: 8px;
+      }
+    }
     #lead-form-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -60,6 +76,7 @@
       display: none;
       align-items: center;
       justify-content: center;
+      z-index: 10;
     }
     #lead-form-popup {
       background: white;
@@ -67,11 +84,12 @@
       border-radius: 10px;
       max-width: 400px;
       width: 90%;
+      position: relative;
     }
     .close-btn {
       position: absolute;
-      right: 20px;
-      top: 20px;
+      right: 10px;
+      top: 10px;
       cursor: pointer;
       background: none;
       border: none;
@@ -106,8 +124,8 @@
   const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
   const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
 
-  const chat = document.getElementById('chat');
-  const userInput = document.getElementById('user-input');
+  const chat = document.getElementById("chat");
+  const userInput = document.getElementById("user-input");
 
   let messages = [];
   let userId = localStorage.getItem("userId");
@@ -120,30 +138,29 @@
     const text = userInput.value.trim();
     if (!text) return;
 
-    appendMessage('Пользователь', text);
-    userInput.value = '';
-
+    appendMessage("Пользователь", text);
+    userInput.value = "";
     messages.push({ role: "user", content: text });
 
     const res = await fetch(OPENAI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, userId })
+      body: JSON.stringify({ messages, userId })
     });
 
     const data = await res.json();
-    const gptMessage = data.message;
+    const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
+    const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
+
     appendMessage("🤖 Анна", gptMessage);
     messages.push({ role: "assistant", content: gptMessage });
 
-    if (gptMessage.toLowerCase().includes("оставьте номер") || gptMessage.toLowerCase().includes("перезвонить")) {
-      showLeadForm();
-    }
+    if (triggerForm) showLeadForm();
   }
 
   function appendMessage(sender, text) {
-    const msg = document.createElement('div');
-    msg.className = 'message';
+    const msg = document.createElement("div");
+    msg.className = "message";
     msg.innerHTML = `<span class="user">${sender}:</span> ${text}`;
     chat.appendChild(msg);
     chat.scrollTop = chat.scrollHeight;
@@ -153,7 +170,6 @@
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = "ru-RU";
     recognition.start();
-
     recognition.onresult = function (event) {
       userInput.value = event.results[0][0].transcript;
     };
