@@ -5,97 +5,103 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Голосовой помощник</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: white;
+  }
+  .message {
+    margin-bottom: 10px;
+  }
+  .user {
+    font-weight: bold;
+    color: #003366;
+  }
+  .input-container {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+  }
+  .input-container input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  .input-container button {
+    padding: 10px;
+    margin-left: 10px;
+    background-color: #003366;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
     .chat-container {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      overflow: hidden;
+      height: 100vh;
     }
     .messages {
       flex-grow: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background: white;
-    }
-    .message {
-      margin-bottom: 10px;
-    }
-    .user {
-      font-weight: bold;
-      color: #003366;
+      padding: 5px;
+      min-height: 0;
     }
     .input-container {
-      display: flex;
-      border-top: 1px solid #ccc;
-      padding: 10px;
-      background-color: #fff;
+      padding: 5px;
     }
     .input-container input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
+      font-size: 14px;
     }
     .input-container button {
-      padding: 10px;
-      margin-left: 10px;
-      background-color: #003366;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      padding: 8px;
     }
-    @media (max-width: 768px) {
-      .messages {
-        padding: 10px;
-      }
-      .input-container {
-        padding: 5px;
-      }
-      .input-container input {
-        font-size: 14px;
-      }
-      .input-container button {
-        padding: 8px;
-      }
-    }
-    #lead-form-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background-color: rgba(0,0,0,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    #lead-form-popup {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      width: 90%;
-      position: relative;
-    }
-    .close-btn {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 18px;
-    }
-  </style>
+  }
+
+  #lead-form-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  #lead-form-popup {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+  }
+  .close-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 18px;
+  }
+</style>
 </head>
 <body>
   <div class="chat-container">
