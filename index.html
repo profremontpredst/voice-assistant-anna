@@ -2,155 +2,184 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Встроенный помощник</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Голосовой ассистент для бизнеса</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
-    }
-
-    .fake-block {
-      padding: 60px 20px;
-      background: #ddd;
-      text-align: center;
-      font-size: 20px;
+      margin: 0;
+      background-color: #f4f4f4;
       color: #333;
     }
 
-    .assistant-block {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 500px;
+    header {
+      background-color: #f5faff;
+      text-align: center;
+      padding: 30px 20px 10px;
+      border-bottom: 1px solid #ddd;
     }
 
-    .messages {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 15px;
-      background: #fefefe;
+    header img.logo {
+      width: 120px;
+      margin-bottom: 10px;
     }
 
-    .message {
-      margin-bottom: 12px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      max-width: 80%;
-      word-wrap: break-word;
+    header h1 {
+      font-size: 28px;
+      margin: 10px 0 5px;
+      color: #003366;
     }
 
-    .from-user {
-      align-self: flex-end;
-      background: rgba(0, 102, 204, 0.08);
-    }
-
-    .from-bot {
-      align-self: flex-start;
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .input-container {
-      display: flex;
-      border-top: 1px solid #ccc;
-      padding: 10px;
-      background-color: #fff;
-      align-items: center;
-    }
-
-    .input-container input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    header p {
       font-size: 16px;
+      margin: 0 0 20px;
     }
 
-    .input-container button {
-      padding: 10px;
-      margin-left: 10px;
-      background-color: #003366;
+    .cta-button {
+      background: linear-gradient(to bottom, #3BC5FE, #1E90FF);
       color: #fff;
+      padding: 15px 30px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
+    }
+
+    .main-photo {
+      max-width: 300px;
+      display: block;
+      margin: 20px auto 10px;
+    }
+
+    .section {
+      background-color: #fff;
+      padding: 25px 20px;
+      margin: 20px auto;
+      max-width: 800px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .highlight {
+      background-color: rgba(0, 46, 95, 0.1);
+      color: #003366;
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      margin: 30px auto;
+      max-width: 800px;
+    }
+
+    .section h2 {
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+
+    .section ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .section ul li {
+      margin-bottom: 12px;
       position: relative;
+      padding-left: 25px;
     }
 
-    .recording-dot {
-      width: 10px;
-      height: 10px;
-      background: red;
-      border-radius: 50%;
+    .section ul li::before {
+      content: "✓";
       position: absolute;
-      top: 5px;
-      right: 5px;
-      display: none;
+      left: 0;
+      color: green;
+      font-weight: bold;
     }
 
-    @media (max-width: 768px) {
-      .assistant-block {
-        height: 450px;
-        border-radius: 0;
+    .quote {
+      font-style: italic;
+      margin-top: 15px;
+      color: #666;
+    }
+
+    @media (max-width: 600px) {
+      .cta-button {
+        width: 100%;
+        font-size: 16px;
       }
-    }
 
-    #lead-form-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background-color: rgba(0,0,0,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
+      .main-photo {
+        max-width: 90%;
+      }
 
-    #lead-form-popup {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      width: 90%;
-      position: relative;
-    }
-
-    .close-btn {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 18px;
+      header h1 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="fake-block">🔼 Блок контента над ассистентом 🔼</div>
+  <header>
+    <img src="https://i.imgur.com/giZWpMe.png" alt="Логотип" class="logo" />
+    <h1>Голосовой ассистент на сайт, который продаёт</h1>
+    <p>Нажмите кнопку — и услышите, как должен звучать клиентский сервис</p>
+    <button class="cta-button">🎤 Говорить с ботом</button>
+  </header>
 
-  <!-- Ассистент как обычный блок -->
-  <div class="assistant-block">
-    <div class="messages" id="chat"></div>
-    <div class="input-container">
-      <input type="text" id="user-input" placeholder="Введите сообщение..." />
-      <button onclick="startVoiceInput()">🎤<span class="recording-dot" id="rec-dot"></span></button>
-      <button onclick="sendMessage()">➤</button>
+  <img src="https://i.imgur.com/fsQiE0g.png" alt="Ассистент" class="main-photo" />
+
+  <div class="highlight">
+    🎧 ТОП-1 по качеству голоса — убедитесь сами!<br>
+    Бот говорит естественно, с эмоциями и теплом — с ним приятно общаться, как с живым человеком.
+  </div>
+
+  <div class="section">
+    <h2>🔥 1. Мгновенный контакт (никаких ожиданий)</h2>
+    <ul>
+      <li>❌ Колл-центр: заявка → ожидание → потеря клиента</li>
+      <li>✅ Бот: нажал кнопку — ответ за 1 секунду</li>
+    </ul>
+    <p class="quote">Фишка: Это как «купи сейчас» вместо «мы вам перезвоним».</p>
+  </div>
+
+  <div class="section">
+    <h2>💰 2. Конверсия в 2–3 раза выше</h2>
+    <ul>
+      <li>❌ 100 заявок → 5 продаж через операторов</li>
+      <li>✅ 100 кликов → 15–20 продаж через бота</li>
+    </ul>
+    <p class="quote">Фишка: Клиент уже в диалоге — не нужно уговаривать</p>
+  </div>
+
+  <!-- 🔽 Дальше сюда вставим блок ассистента (часть 2) -->
+  <div class="section">
+    <h2>🤖 Попробуйте прямо сейчас</h2>
+    <p class="quote">Ниже — настоящий помощник. Можете писать или говорить, он отвечает мгновенно.</p>
+
+    <div class="assistant-block">
+      <div class="messages" id="chat"></div>
+      <div class="input-container">
+        <input type="text" id="user-input" placeholder="Введите сообщение..." />
+        <button onclick="startVoiceInput()">🎤<span class="recording-dot" id="rec-dot"></span></button>
+        <button onclick="sendMessage()">➤</button>
+      </div>
     </div>
   </div>
 
-  <div class="fake-block">🔽 Блок под ассистентом 🔽</div>
+  <div class="section">
+    <h2>🎯 Почему это работает</h2>
+    <ul>
+      <li>Всегда на связи — не нужен оператор</li>
+      <li>Отвечает за 1 секунду</li>
+      <li>Запоминает суть диалога</li>
+    </ul>
+    <p class="quote">Фишка: Реальная замена первичному колл-центру</p>
+  </div>
 
-  <!-- Форма заявки -->
+  <!-- 🔽 Форма заявки -->
   <div id="lead-form-overlay">
-    <div id="lead-form-popup">
+    <div id="lead-form-popup" style="background:#fff;padding:20px;border-radius:10px;max-width:400px;width:90%;position:relative;">
       <button class="close-btn" onclick="closeLeadForm()">X</button>
       <h3>Оставьте заявку</h3>
       <p>Мы перезвоним вам в ближайшее время</p>
@@ -162,93 +191,93 @@
     </div>
   </div>
 
-<script>
-  const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
-  const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+  <script>
+    const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
+    const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
 
-  const chat = document.getElementById("chat");
-  const userInput = document.getElementById("user-input");
+    const chat = document.getElementById("chat");
+    const userInput = document.getElementById("user-input");
 
-  let messages = [];
-  let userId = localStorage.getItem("userId");
-  if (!userId) {
-    userId = "user_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("userId", userId);
-  }
+    let messages = [];
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      userId = "user_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("userId", userId);
+    }
 
-  async function sendMessage() {
-    const text = userInput.value.trim();
-    if (!text) return;
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
 
-    appendMessage(text, true);
-    userInput.value = "";
-    messages.push({ role: "user", content: text });
+      appendMessage(text, true);
+      userInput.value = "";
+      messages.push({ role: "user", content: text });
 
-    const res = await fetch(OPENAI_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, userId })
+      const res = await fetch(OPENAI_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages, userId })
+      });
+
+      const data = await res.json();
+      const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
+      const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
+
+      appendMessage(gptMessage, false);
+      messages.push({ role: "assistant", content: gptMessage });
+
+      if (triggerForm) showLeadForm();
+    }
+
+    function appendMessage(text, isUser) {
+      const msg = document.createElement("div");
+      msg.className = "message " + (isUser ? "from-user" : "from-bot");
+      msg.textContent = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function startVoiceInput() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = "ru-RU";
+      recognition.start();
+      document.getElementById("rec-dot").style.display = "block";
+
+      recognition.onresult = function (event) {
+        userInput.value = event.results[0][0].transcript;
+      };
+
+      recognition.onend = function () {
+        document.getElementById("rec-dot").style.display = "none";
+      };
+    }
+
+    function showLeadForm() {
+      document.getElementById("lead-form-overlay").style.display = "flex";
+    }
+
+    function closeLeadForm() {
+      document.getElementById("lead-form-overlay").style.display = "none";
+    }
+
+    function submitLead(event) {
+      event.preventDefault();
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+
+      fetch(LEAD_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, userId })
+      });
+
+      closeLeadForm();
+      appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
+    }
+
+    userInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") sendMessage();
     });
-
-    const data = await res.json();
-    const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
-    const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
-
-    appendMessage(gptMessage, false);
-    messages.push({ role: "assistant", content: gptMessage });
-
-    if (triggerForm) showLeadForm();
-  }
-
-  function appendMessage(text, isUser) {
-    const msg = document.createElement("div");
-    msg.className = "message " + (isUser ? "from-user" : "from-bot");
-    msg.textContent = text;
-    chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  function startVoiceInput() {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "ru-RU";
-    recognition.start();
-    document.getElementById("rec-dot").style.display = "block";
-
-    recognition.onresult = function (event) {
-      userInput.value = event.results[0][0].transcript;
-    };
-
-    recognition.onend = function () {
-      document.getElementById("rec-dot").style.display = "none";
-    };
-  }
-
-  function showLeadForm() {
-    document.getElementById("lead-form-overlay").style.display = "flex";
-  }
-
-  function closeLeadForm() {
-    document.getElementById("lead-form-overlay").style.display = "none";
-  }
-
-  function submitLead(event) {
-    event.preventDefault();
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-
-    fetch(LEAD_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, userId })
-    });
-
-    closeLeadForm();
-    appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
-  }
-
-  userInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") sendMessage();
-  });
-</script>
+  </script>
 </body>
 </html>
