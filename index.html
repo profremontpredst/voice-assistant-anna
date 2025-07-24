@@ -346,19 +346,20 @@
     }
 
     function submitLead(event) {
-      event.preventDefault();
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
+  event.preventDefault();
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
 
-      fetch(LEAD_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, userId })
-      });
+  fetch(LEAD_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, phone, userId, messages })
+  });
 
-      closeLeadForm();
-      appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
-    }
+  closeLeadForm();
+  appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
+}
+
 
     userInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") sendMessage();
