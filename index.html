@@ -276,94 +276,148 @@
     }
   </style>
 
-  <script>
-    const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
-    const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+<script>
+  const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
+  const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+  const ELEVENLABS_STREAM_URL = "http://62.171.164.184:3000/stream";
 
-    const chat = document.getElementById("chat");
-    const userInput = document.getElementById("user-input");
+  const chat = document.getElementById("chat");
+  const userInput = document.getElementById("user-input");
 
-    let messages = [];
-    let userId = localStorage.getItem("userId");
-    if (!userId) {
-      userId = "user_" + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem("userId", userId);
-    }
+  let messages = [];
+  let userId = localStorage.getItem("userId");
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("userId", userId);
+  }
 
-    async function sendMessage() {
-      const text = userInput.value.trim();
-      if (!text) return;
+  // 🎤 КНОПКА ПРОТЕСТИРОВАТЬ ГОЛОСОВОГО БОТА
+  document.querySelector(".cta-button").addEventListener("click", startVoiceAssistant);
 
-      appendMessage(text, true);
-      userInput.value = "";
-      messages.push({ role: "user", content: text });
+  async function startVoiceAssistant() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "ru-RU";
+    recognition.start();
+
+    recognition.onresult = async function (event) {
+      const voiceText = event.results[0][0].transcript;
+      console.log("🗣 Распознано:", voiceText);
+
+      const voiceMessages = [{ role: "user", content: voiceText }];
 
       const res = await fetch(OPENAI_PROXY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, userId })
+        body: JSON.stringify({
+          messages: voiceMessages,
+          userId,
+          mode: "voice"
+        })
       });
 
       const data = await res.json();
-      const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
-      const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
+      const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: голосовой ответ не получен";
 
-      appendMessage(gptMessage, false);
-      messages.push({ role: "assistant", content: gptMessage });
+      speakText(gptMessage);
+    };
 
-      if (triggerForm) showLeadForm();
+    recognition.onerror = function (e) {
+      console.error("🎤 Ошибка распознавания:", e);
+    };
+  }
+
+  // 🔊 Отправка текста в ElevenLabs и проигрывание
+  async function speakText(text) {
+    try {
+      const res = await fetch(ELEVENLABS_STREAM_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+    } catch (e) {
+      console.error("❌ Ошибка озвучки:", e);
     }
+  }
 
-    function appendMessage(text, isUser) {
-      const msg = document.createElement("div");
-      msg.className = "message " + (isUser ? "from-user" : "from-bot");
-      msg.textContent = text;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
-    }
+  // 💬 ТЕКСТОВЫЙ БОТ
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
 
-    function startVoiceInput() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = "ru-RU";
-      recognition.start();
-      document.getElementById("rec-dot").style.display = "block";
+    appendMessage(text, true);
+    userInput.value = "";
+    messages.push({ role: "user", content: text });
 
-      recognition.onresult = function (event) {
-        userInput.value = event.results[0][0].transcript;
-      };
-
-      recognition.onend = function () {
-        document.getElementById("rec-dot").style.display = "none";
-      };
-    }
-
-    function showLeadForm() {
-      document.getElementById("lead-form-overlay").style.display = "flex";
-    }
-
-    function closeLeadForm() {
-      document.getElementById("lead-form-overlay").style.display = "none";
-    }
-
-    function submitLead(event) {
-  event.preventDefault();
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-
-  fetch(LEAD_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, phone, userId, messages })
-  });
-
-  closeLeadForm();
-  appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
-}
-
-
-    userInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") sendMessage();
+    const res = await fetch(OPENAI_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, userId })
     });
-  </script>
+
+    const data = await res.json();
+    const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
+    const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
+
+    appendMessage(gptMessage, false);
+    messages.push({ role: "assistant", content: gptMessage });
+
+    if (triggerForm) showLeadForm();
+  }
+
+  function appendMessage(text, isUser) {
+    const msg = document.createElement("div");
+    msg.className = "message " + (isUser ? "from-user" : "from-bot");
+    msg.textContent = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function startVoiceInput() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "ru-RU";
+    recognition.start();
+    document.getElementById("rec-dot").style.display = "block";
+
+    recognition.onresult = function (event) {
+      userInput.value = event.results[0][0].transcript;
+    };
+
+    recognition.onend = function () {
+      document.getElementById("rec-dot").style.display = "none";
+    };
+  }
+
+  function showLeadForm() {
+    document.getElementById("lead-form-overlay").style.display = "flex";
+  }
+
+  function closeLeadForm() {
+    document.getElementById("lead-form-overlay").style.display = "none";
+  }
+
+  function submitLead(event) {
+    event.preventDefault();
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+
+    fetch(LEAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, userId, messages })
+    });
+
+    closeLeadForm();
+    appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
+  }
+
+  userInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
+</script>
 </body>
 </html>
