@@ -2,422 +2,526 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI-ассистент на сайте для бизнеса</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Бот: Текст и Голос</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background-color: #f4f4f4;
-      color: #333;
+      background: linear-gradient(145deg, #0d1b2a, #1b263b);
+      font-family: Arial, sans-serif;
+      color: #fff;
     }
-
-    header {
-      background-color: #f5faff;
-      text-align: center;
-      padding: 30px 20px 10px;
-      border-bottom: 1px solid #ddd;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
     }
-
-    header img.logo {
-      width: 120px;
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      border: 1px solid #444;
+      background-color: transparent;
+      color: #ccc;
+      cursor: pointer;
+      margin: 0 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .tab-button.active {
+  background-color: #00f2ff;
+  color: #000;
+      background-color: #00f2ff;
+      color: #fff;
+    }
+    .bots-wrapper {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .panel {
+      flex: 1 1 400px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 20px;
+      opacity: 0.4;
+      transition: all 0.3s ease;
+    }
+    .panel.active {
+      opacity: 1;
+    }
+    .chat-box {
+  min-height: 200px;
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      padding: 10px;
       margin-bottom: 10px;
     }
-
-    header h1 {
-      font-size: 28px;
-      margin: 10px 0 5px;
-      color: #003366;
-    }
-
-    header p {
-      font-size: 16px;
-      margin: 0 0 20px;
-    }
-
-    .cta-button {
-      background: linear-gradient(to bottom, #3BC5FE, #1E90FF);
-      color: #fff;
-      padding: 15px 30px;
+    .chat-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
       border: none;
-      border-radius: 6px;
-      font-size: 16px;
+    }
+    .waveform {
+      width: 100%;
+      height: 100px;
+      background-image: linear-gradient(to right, #00f2ff 50%, transparent 0%);
+      background-size: 20px 100%;
+      animation: none;
+    }
+    .waveform.listening {
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    .mic-button {
+      display: block;
+      margin: 20px auto 0;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background-color: #00f2ff;
+      border: none;
+      background-image: url('https://img.icons8.com/ios-filled/50/ffffff/microphone.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 50%;
       cursor: pointer;
     }
-
-    .main-photo {
-      max-width: 300px;
-      display: block;
-      margin: 20px auto 10px;
-    }
-
-    .section {
-      background-color: #fff;
-      padding: 25px 20px;
-      margin: 20px auto;
-      max-width: 800px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .highlight {
-      background-color: rgba(0, 46, 95, 0.1);
-      color: #003366;
+    .status {
       text-align: center;
-      padding: 30px 20px;
-      font-size: 20px;
-      font-weight: bold;
+      margin-top: 10px;
+      font-size: 16px;
+      color: #00f2ff;
+    }
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .footer-buttons button {
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 1px solid #00f2ff;
+      color: #00f2ff;
       border-radius: 8px;
-      margin: 30px auto;
-      max-width: 800px;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
-
-    .section h2 {
-      font-size: 22px;
-      margin-bottom: 15px;
+    .footer-buttons button:hover {
+      background-color: #00f2ff;
+      color: #000;
     }
-
-    .section ul {
+    .features {
+      margin-top: 80px;
+      text-align: center;
+    }
+    .features h2 {
+      font-size: 28px;
+      margin-bottom: 40px;
+    }
+    .features-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .feature-item {
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      width: 200px;
+      text-align: center;
+      border: 1px solid rgba(0, 242, 255, 0.3);
+    }
+    .feature-item img {
+      width: 40px;
+      margin-bottom: 10px;
+    }
+    .feature-caption {
+      font-size: 16px;
+    }
+    .smart-block {
+      margin-top: 100px;
+      background-color: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .smart-block h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .smart-block ul {
       list-style: none;
-      padding-left: 0;
+      padding: 0;
+      margin: 0 auto 30px;
+      max-width: 600px;
+      text-align: left;
     }
-
-    .section ul li {
+    .smart-block li {
       margin-bottom: 12px;
+      padding-left: 24px;
       position: relative;
-      padding-left: 25px;
     }
-
-    .section ul li::before {
-      content: "✓";
+    .smart-block li::before {
+      content: "✔";
       position: absolute;
       left: 0;
-      color: green;
-      font-weight: bold;
+      color: #00f2ff;
+    }
+    .smart-block .bottom-text {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+    .value-prop {
+      margin-top: 100px;
+      text-align: center;
+      padding: 40px 20px;
+      background-color: rgba(255,255,255,0.02);
+      border-radius: 20px;
+    }
+    .value-prop h2 {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+    .value-grid {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .value-item {
+      width: 250px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(0, 242, 255, 0.3);
+    }
+    .value-item img {
+      width: 40px;
+      margin-bottom: 10px;
+    }
+    .value-item p {
+      font-size: 16px;
+    }
+    @media (max-width: 768px) {
+      .bots-wrapper {
+        flex-direction: column;
+      }
+      .bots-wrapper .panel {
+        display: none;
+      }
+      .bots-wrapper .panel.active {
+        display: block;
+        opacity: 1;
+      }
+      .smart-block ul {
+        padding: 0 10px;
+      }
+      .value-grid {
+        flex-direction: column;
+        align-items: center;
+      }
+      .value-item {
+        width: 90%;
+      }
+    }
+  
+    .how-we-work {
+      margin-top: 100px;
+      padding: 40px 20px;
+      background-color: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      text-align: left;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .how-we-work h2 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .how-we-work ul {
+      list-style: none;
+      padding: 0;
+    }
+    .how-we-work li {
+      margin-bottom: 20px;
+      padding-left: 24px;
+      position: relative;
+    }
+    .how-we-work li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: #00f2ff;
     }
 
-    .quote {
-      font-style: italic;
-      margin-top: 15px;
-      color: #666;
-    }
-
-    @media (max-width: 600px) {
-      .cta-button {
-        width: 100%;
-        font-size: 16px;
-      }
-
-      .main-photo {
-        max-width: 90%;
-      }
-
-      header h1 {
-        font-size: 24px;
-      }
-    }
-  </style>
+</style>
 </head>
-<body>
+<div style="text-align: center; position: relative; z-index: 10; padding: 20px 0;">
+  <img src="https://i.ibb.co/LDrthZD4/87364622-f999-476a-9c1d-d778dc50c6a8-1.png"
+       alt="Anna Logo"
+       style="height: 100px; object-fit: contain;" />
+</div>      
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-button active" onclick="switchTab('text')">Текстовый бот</button>
+      <button class="tab-button" onclick="switchTab('voice')">Голосовой бот</button>
+    </div>
+    <div class="bots-wrapper">
+      <div id="text" class="panel active">
+        <div class="chat-box"></div>
+        <input class="chat-input" type="text" placeholder="Введите сообщение...">
+      </div>
+      <div id="voice" class="panel">
+        <div class="waveform" id="waveform"></div>
+        <button class="mic-button" onclick="startVoiceDialog()"></button>
+        <div class="status" id="voice-status">Нажмите на микрофон, чтобы начать</div>
+      </div>
+    </div>
+    <div class="footer-buttons">
+      <button onclick="sendHotkey('Хочу себе такого')">Хочу себе такого</button>
+      <button onclick="sendHotkey('Сколько стоит?')">Сколько стоит?</button>
+      <button onclick="sendHotkey('Тест-доступ')">Бесплатный тест</button>
+    </div>
+    <div class="features">
+      <h2>Возможности</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/chat--v1.png" />
+          <div class="feature-caption">Общение с пользователем</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/code--v1.png" />
+          <div class="feature-caption">Вызов функций сайта</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/order-history.png" />
+          <div class="feature-caption">Оформление заказов</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/share.png" />
+          <div class="feature-caption">Передача данных в CRM</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/combo-chart--v1.png" />
+          <div class="feature-caption">Анализ трафика</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/checklist.png" />
+          <div class="feature-caption">Рекомендации менеджеру</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/positive-dynamic.png" />
+          <div class="feature-caption">Увеличивает конверсии с сайта</div>
+        </div>
+        <div class="feature-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/money.png" />
+          <div class="feature-caption">Дешевле живого сотрудника</div>
+        </div>
+      </div>
+      <!-- Блок звонящего ИИ-бота -->
+<div class="voice-ai-block" style="margin-top: 80px; background-color: rgba(255,255,255,0.03); padding: 40px 20px; border-radius: 20px; text-align: center;">
+  <img src="https://img.icons8.com/ios-filled/50/00f2ff/phone.png" style="width: 40px; margin-bottom: 15px;" />
+  <h2 style="font-size: 26px; margin-bottom: 10px;">ИИ сам звонит и ведёт диалог</h2>
+  <p style="max-width: 600px; margin: 0 auto 20px; font-size: 16px; opacity: 0.85;">
+    Перезванивает по заявке или загруженной базе. Понимает речь, отвечает голосом, двигает сделки в CRM.
+  </p>
+  <button onclick="sendHotkey('Хочу протестировать звонящего бота')" style="padding: 12px 24px; background-color: #00f2ff; border: none; border-radius: 8px; color: #000; font-size: 16px; cursor: pointer;">
+    Хочу на тест
+  </button>
+  <div style="margin-top: 10px; font-size: 14px; opacity: 0.6;">Скоро на сайте</div>
+</div>
+    </div>
+    <div class="smart-block">
+      <h2>Умный сайт с ИИ —</h2>
+      <ul>
+        <li>Персональный ассистент на первой линии</li>
+        <li>Чат, который понимает смысл и помогает принять решение</li>
+        <li>Подготовка заявки и комментарий для CRM — без ручной работы</li>
+      </ul>
+      <div class="bottom-text">Старые сайты — это обложка. Новые сайты — это сотрудники.</div>
+    </div>
+    <div class="value-prop">
+      <h2>Что вы получаете</h2>
+      <div class="value-grid">
+        <div class="value-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/light-on.png" />
+          <p>Сайт, который работает как сотрудник</p>
+        </div>
+        <div class="value-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/brainstorm.png" />
+          <p>ИИ, понимающий клиента и помогающий принять решение</p>
+        </div>
+        <div class="value-item">
+          <img src="https://img.icons8.com/ios-filled/50/00f2ff/shield.png" />
+          <p>Контроль над всеми данными и безопасностью</p>
+        </div>
+      </div>
+    </div>
+  
+<div class="how-we-work">
+  <h2>Как мы работаем</h2>
+  <ul>
+    <li><strong>Изучаем задачу</strong><br>Определяем цели, формат взаимодействия и необходимый функционал.</li>
+    <li><strong>Создаём умный сайт или внедряем ИИ на ваш сайт</strong><br>Разрабатываем отдельный сайт с ассистентом или интегрируем ИИ в текущий проект.</li>
+    <li><strong>Настраиваем сервер и подключаем нейросети</strong><br>Запускаем GPT, голосовые функции, CRM, Google Sheets и аналитику.</li>
+    <li><strong>Подключаем домен и запускаем</strong><br>Сайт полностью готов к работе. Никаких лишних действий с вашей стороны.</li>
+    <li><strong>Обеспечиваем безопасность и конфиденциальность данных</strong><br>Все заявки, переписки и комментарии передаются только вам. Доступ — только у вас.</li>
+  </ul>
+</div>
 
-  <header>
-    <img src="https://i.imgur.com/giZWpMe.png" alt="Логотип" class="logo" />
-    <h1>AI-ассистент на сайте для бизнеса</h1>
-    <p>Общается с посетителем прямо на странице — отвечает, предлагает решения, собирает данные</p>
-    <button class="cta-button">🎤 Протестировать голосовую версию</button>
-  </header>
-
-  <img src="https://i.imgur.com/fsQiE0g.png" alt="Ассистент" class="main-photo" />
-
-  <div class="highlight">
-    🤖 Текстовый помощник прямо на сайте — отвечает мгновенно и ведёт диалог по делу.<br>
-    Понимает речь, выводит ответы в чат, сохраняет контекст.
+</div>
+  <script>
+    function switchTab(type) {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelector('.tab-button[onclick*="' + type + '"]').classList.add('active');
+      document.getElementById(type).classList.add('active');
+    }
+    function sendHotkey(message) {
+      const isVoice = document.getElementById('voice').classList.contains('active');
+      const mode = isVoice ? 'Голосовой бот' : 'Текстовый бот';
+      alert(`Сообщение в ${mode}: ${message}`);
+    }
+    function startVoiceDialog() {
+      const status = document.getElementById('voice-status');
+      const waveform = document.getElementById('waveform');
+      status.innerText = 'Диалог начат. Говорите...';
+      waveform.classList.add('listening');
+    }
+  </script>
+  <!-- Интеграции в мессенджеры + форма -->
+<div class="integration-block" style="margin-top: 100px; background-color: rgba(255,255,255,0.03); border-radius: 20px; padding: 40px 20px; text-align: center;">
+  <h2 style="font-size: 26px; color: #00f2ff; margin-bottom: 20px;">ИИ можно внедрить в любые мессенджеры</h2>
+  <p style="font-size: 16px; opacity: 0.85; max-width: 600px; margin: 0 auto 30px;">
+    Интегрируем ИИ в Telegram, WhatsApp, ВКонтакте, Avito и любые другие платформы с API. Бот общается, отвечает на заявки, продаёт и передаёт в CRM.
+  </p>
+  <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+    <img src="https://img.icons8.com/ios-filled/50/00f2ff/telegram-app.png" width="40" alt="Telegram"/>
+    <img src="https://img.icons8.com/ios-filled/50/00f2ff/whatsapp.png" width="40" alt="WhatsApp"/>
+    <img src="https://img.icons8.com/ios-filled/50/00f2ff/vk-circled.png" width="40" alt="VK"/>
+    <img src="https://img.icons8.com/ios-filled/50/00f2ff/domain.png" width="40" alt="Avito"/>
+    <img src="https://img.icons8.com/ios-filled/50/00f2ff/api.png" width="40" alt="API"/>
   </div>
+  <form onsubmit="event.preventDefault(); alert('Заявка в отдел продаж отправлена');" name="Заявка в отдел продаж" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+    <input type="text" name="name" placeholder="Ваше имя" required style="width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: none;" />
+    <input type="tel" name="phone" id="phone" placeholder="+7 (___) ___-__-__" required style="width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: none;" />
+    <textarea name="message" rows="3" placeholder="Ваш вопрос или задача" style="width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: none;"></textarea>
+    <button type="submit" style="padding: 12px 24px; background-color: #00f2ff; color: #000; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
+      Связаться с отделом продаж
+    </button>
+  </form>
+</div>
 
+<!-- Подключение маски телефона -->
+<script src="https://unpkg.com/imask"></script>
+<script>
+  const phoneMask = IMask(document.getElementById('phone'), {
+    mask: '+{7} (000) 000-00-00'
+  });
+</script>
+<!-- Футер -->
+<div class="footer">
   <div class="section">
-    <h2>🚀 Как работает помощник</h2>
-    <ul>
-      <li>Понимает текст или речь</li>
-      <li>Отвечает по логике GPT</li>
-      <li>Может открывать окна, формы и запускать действия</li>
-    </ul>
-    <p class="quote">Подходит под любую задачу: сбор заявок, консультации, продажи</p>
-  </div>
-
-  <div class="section">
-    <h2>🎯 Почему это удобно</h2>
-    <ul>
-      <li>Без менеджеров и колл-центров</li>
-      <li>Мгновенная реакция 24/7</li>
-      <li>Гибко настраивается под ваш бизнес</li>
-    </ul>
-    <p class="quote">Клиент получает ответ сразу — без лишних кликов и ожидания звонка</p>
-  </div>
-
-  <div class="section">
-    <h2>💬 Попробуйте текстовый бот прямо сейчас</h2>
-    <p class="quote">Ниже — живой AI-ассистент. Можно писать или говорить, он отвечает текстом.</p>
-
-    <div class="assistant-block">
-      <div class="messages" id="chat"></div>
-      <div class="input-container">
-        <input type="text" id="user-input" placeholder="Введите сообщение..." />
-        <button onclick="startVoiceInput()">🎤<span class="recording-dot" id="rec-dot"></span></button>
-        <button onclick="sendMessage()">➤</button>
+    <div class="column">
+      <h3>Контакты</h3>
+      <div>📞 <a href="tel:+79937480725">+7 993 748-07-25</a> (WhatsApp)</div>
+      <div>💬 Telegram: <a href="https://t.me/Anna_Marketing33">@Anna_Marketing33</a></div>
+      <div>✉️ <a href="mailto:ann4-marketing@yandex.ru">ann4-marketing@yandex.ru</a></div>
+    </div>
+    <div class="column">
+      <h3>Реквизиты</h3>
+      <div>ИП Феськова Анна Александровна</div>
+      <div>ОГРНИП: 323330000039272</div>
+      <div>ИНН: 333802711900</div>
+      <div>Юр. адрес: г. Владимир, ул. Полины Осипенко, д. 21</div>
+      <div class="bank-toggle" onclick="toggleBank()">Показать банковские реквизиты</div>
+      <div class="bank-details" id="bank">
+        <div>Р/с: 40802810320000069222</div>
+        <div>Банк: ООО "Банк Точка"</div>
+        <div>БИК: 044525104</div>
+        <div>К/с: 30101810745374525104</div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="section">
-    <h2>🧩 Что внутри</h2>
-    <ul>
-      <li>GPT с сохранением контекста</li>
-      <li>Распознавание речи</li>
-      <li>Интеграция с формами, CRM и таблицами</li>
-    </ul>
-    <p class="quote">Работает в браузере, не требует установки и доступен 24/7</p>
-  </div>
-
-  <!-- Форма -->
-  <div id="lead-form-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background-color:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:1000;">
-    <div id="lead-form-popup" style="background:#fff;padding:20px;border-radius:10px;max-width:400px;width:90%;position:relative;">
-      <button class="close-btn" onclick="closeLeadForm()" style="position:absolute;right:10px;top:10px;cursor:pointer;background:none;border:none;font-size:18px;">X</button>
-      <h3>Оставьте заявку</h3>
-      <p>Мы перезвоним вам в ближайшее время</p>
-      <form id="lead-form" onsubmit="submitLead(event)">
-        <input type="text" id="name" name="name" placeholder="Ваше имя" required style="width:100%;padding:10px;margin-bottom:10px;">
-        <input type="tel" id="phone" name="phone" value="+7" required style="width:100%;padding:10px;margin-bottom:15px;" maxlength="12">
-        <button type="submit" style="width:100%;padding:10px;background:#003366;color:#fff;border:none;border-radius:5px;">Отправить</button>
-      </form>
-    </div>
-  </div>
-
-  <style>
-    .assistant-block {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
+<!-- Стили футера -->
+<style>
+  .footer {
+    background-color: rgba(255, 255, 255, 0.02);
+    padding: 40px 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 14px;
+    color: #fff;
+  }
+  .footer h3 {
+    color: #00f2ff;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  .footer a {
+    color: #00f2ff;
+    text-decoration: none;
+  }
+  .footer a:hover {
+    text-decoration: underline;
+  }
+  .footer .section {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    gap: 60px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .footer .column {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bank-toggle {
+    margin-top: 10px;
+    color: #00f2ff;
+    cursor: pointer;
+  }
+  .bank-details {
+    display: none;
+    margin-top: 10px;
+    opacity: 0.7;
+  }
+  @media (max-width: 768px) {
+    .footer .section {
       flex-direction: column;
-      height: 500px;
+      gap: 30px;
     }
+  }
+</style>
 
-    .messages {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 15px;
-      background: #fefefe;
-    }
-
-    .message {
-      margin-bottom: 12px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      max-width: 80%;
-      word-wrap: break-word;
-    }
-
-    .from-user {
-      align-self: flex-end;
-      background: rgba(0, 102, 204, 0.08);
-    }
-
-    .from-bot {
-      align-self: flex-start;
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .input-container {
-      display: flex;
-      border-top: 1px solid #ccc;
-      padding: 10px;
-      background-color: #fff;
-      align-items: center;
-    }
-
-    .input-container input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    .input-container button {
-      padding: 10px;
-      margin-left: 10px;
-      background-color: #003366;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .recording-dot {
-      width: 10px;
-      height: 10px;
-      background: red;
-      border-radius: 50%;
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      .assistant-block {
-        height: 450px;
-        border-radius: 0;
-      }
-    }
-  </style>
-
+<!-- Скрипт для кнопки "Показать банковские реквизиты" -->
 <script>
-  const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
-  const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
-  const ELEVENLABS_STREAM_URL = "https://elevenlabs-proxy-c781.onrender.com/stream";
-
-  const chat = document.getElementById("chat");
-  const userInput = document.getElementById("user-input");
-
-  let messages = [];
-  let userId = localStorage.getItem("userId");
-  if (!userId) {
-    userId = "user_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("userId", userId);
+  function toggleBank() {
+    const el = document.getElementById('bank');
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
   }
-
-  // 🎤 КНОПКА ПРОТЕСТИРОВАТЬ ГОЛОСОВОГО БОТА
-  document.querySelector(".cta-button").addEventListener("click", startVoiceAssistant);
-
-  async function startVoiceAssistant() {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "ru-RU";
-    recognition.start();
-
-    recognition.onresult = async function (event) {
-      const voiceText = event.results[0][0].transcript;
-      console.log("🗣 Распознано:", voiceText);
-
-      const voiceMessages = [{ role: "user", content: voiceText }];
-
-      const res = await fetch(OPENAI_PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: voiceMessages,
-          userId,
-          mode: "voice"
-        })
-      });
-
-      const data = await res.json();
-      const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: голосовой ответ не получен";
-
-      speakText(gptMessage);
-    };
-
-    recognition.onerror = function (e) {
-      console.error("🎤 Ошибка распознавания:", e);
-    };
-  }
-
-  // 🔊 Отправка текста в ElevenLabs и проигрывание
-  async function speakText(text) {
-    try {
-      const res = await fetch(ELEVENLABS_STREAM_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text })
-      });
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.play();
-    } catch (e) {
-      console.error("❌ Ошибка озвучки:", e);
-    }
-  }
-
-  // 💬 ТЕКСТОВЫЙ БОТ
-  async function sendMessage() {
-    const text = userInput.value.trim();
-    if (!text) return;
-
-    appendMessage(text, true);
-    userInput.value = "";
-    messages.push({ role: "user", content: text });
-
-    const res = await fetch(OPENAI_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, userId })
-    });
-
-    const data = await res.json();
-    const gptMessage = data?.choices?.[0]?.message?.content || "Ошибка: ответ не получен";
-    const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
-
-    appendMessage(gptMessage, false);
-    messages.push({ role: "assistant", content: gptMessage });
-
-    if (triggerForm) showLeadForm();
-  }
-
-  function appendMessage(text, isUser) {
-    const msg = document.createElement("div");
-    msg.className = "message " + (isUser ? "from-user" : "from-bot");
-    msg.textContent = text;
-    chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  function startVoiceInput() {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "ru-RU";
-    recognition.start();
-    document.getElementById("rec-dot").style.display = "block";
-
-    recognition.onresult = function (event) {
-      userInput.value = event.results[0][0].transcript;
-    };
-
-    recognition.onend = function () {
-      document.getElementById("rec-dot").style.display = "none";
-    };
-  }
-
-  function showLeadForm() {
-    document.getElementById("lead-form-overlay").style.display = "flex";
-  }
-
-  function closeLeadForm() {
-    document.getElementById("lead-form-overlay").style.display = "none";
-  }
-
-  function submitLead(event) {
-    event.preventDefault();
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-
-    fetch(LEAD_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, userId, messages })
-    });
-
-    closeLeadForm();
-    appendMessage("Спасибо! Мы скоро свяжемся с вами.", false);
-  }
-
-  userInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") sendMessage();
-  });
 </script>
 </body>
 </html>
