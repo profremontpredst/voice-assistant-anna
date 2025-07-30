@@ -523,5 +523,111 @@
     el.style.display = el.style.display === 'block' ? 'none' : 'block';
   }
 </script>
+
+<script>
+// === Глобальные переменные ===
+const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
+const ELEVENLABS_STREAM_URL = "https://elevenlabs-proxy-c781.onrender.com/stream";
+const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+const chatBox = document.querySelector(".chat-box");
+const chatInput = document.querySelector(".chat-input");
+const micButton = document.querySelector(".mic-button");
+let messages = [];
+let userId = localStorage.getItem("userId") || "user_" + Math.random().toString(36).substr(2, 9);
+localStorage.setItem("userId", userId);
+
+// === Функции ===
+function appendMessage(text, isUser) {
+  const msg = document.createElement("div");
+  msg.className = "message " + (isUser ? "from-user" : "from-bot");
+  msg.style.cssText = "margin-bottom:10px;padding:8px 12px;border-radius:10px;max-width:80%;background:" + (isUser ? "#00f2ff33" : "#ffffff22") + ";align-self:" + (isUser ? "flex-end" : "flex-start") + ";";
+  msg.innerText = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  appendMessage(text, true);
+  messages.push({ role: "user", content: text });
+  chatInput.value = "";
+
+  try {
+    const res = await fetch(OPENAI_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, userId })
+    });
+    const data = await res.json();
+    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+    const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
+    appendMessage(reply, false);
+    messages.push({ role: "assistant", content: reply });
+    if (triggerForm) document.querySelector("form")?.scrollIntoView({ behavior: "smooth" });
+  } catch (err) {
+    appendMessage("Ошибка запроса", false);
+    console.error(err);
+  }
+}
+
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+
+document.querySelector(".footer-buttons")?.addEventListener("click", (e) => {
+  if (e.target.tagName === "BUTTON") {
+    chatInput.value = e.target.innerText;
+    sendMessage();
+  }
+});
+
+micButton.addEventListener("click", () => {
+  const status = document.getElementById("voice-status");
+  const waveform = document.getElementById("waveform");
+  status.innerText = "Говорите...";
+  waveform.classList.add("listening");
+
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "ru-RU";
+  recognition.start();
+
+  recognition.onresult = async (event) => {
+    const text = event.results[0][0].transcript;
+    appendMessage("🗣 " + text, true);
+    const res = await fetch(OPENAI_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: text }], userId, mode: "voice" })
+    });
+    const data = await res.json();
+    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+    appendMessage(reply, false);
+    speakText(reply);
+    waveform.classList.remove("listening");
+  };
+
+  recognition.onerror = () => {
+    status.innerText = "Ошибка распознавания";
+    waveform.classList.remove("listening");
+  };
+});
+
+async function speakText(text) {
+  try {
+    const res = await fetch(ELEVENLABS_STREAM_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play();
+  } catch (err) {
+    console.error("Ошибка озвучки:", err);
+  }
+}
+</script>
 </body>
 </html>
