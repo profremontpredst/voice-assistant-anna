@@ -523,5 +523,103 @@
     el.style.display = el.style.display === 'block' ? 'none' : 'block';
   }
 </script>
+
+<!-- ВСПЛЫВАЮЩАЯ ФОРМА -->
+<div id="lead-popup" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 15px rgba(0,0,0,0.3);max-width:300px;width:90%;color:#000;">
+  <h3 style="margin-top:0;">Оставьте заявку</h3>
+  <input type="tel" id="popup-phone" placeholder="+7 (___) ___-__-__" style="width:100%;padding:10px;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;">
+  <button onclick="submitLeadPopup()" style="width:100%;padding:10px;background:#00f2ff;border:none;border-radius:5px;color:#000;">Отправить</button>
+</div>
+
+<!-- КНОПКИ И ЛОГИКА -->
+<script src="https://unpkg.com/imask"></script>
+<script>
+const OPENAI_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
+const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+const chatBox = document.querySelector(".chat-box");
+const chatInput = document.querySelector(".chat-input");
+let messages = [];
+let userId = localStorage.getItem("userId") || "user_" + Math.random().toString(36).substr(2, 9);
+localStorage.setItem("userId", userId);
+
+// Добавляем кнопки ➤ и 🎤
+const inputPanel = document.getElementById("text");
+const controls = document.createElement("div");
+controls.style = "display:flex;gap:10px;margin-top:10px;";
+controls.innerHTML = \`
+  <button onclick="startVoiceInput()" style="padding:10px 16px;border:none;border-radius:6px;background:#00f2ff;color:#000;cursor:pointer;">🎤</button>
+  <button onclick="sendMessage()" style="padding:10px 16px;border:none;border-radius:6px;background:#00f2ff;color:#000;cursor:pointer;">➤</button>
+\`;
+inputPanel.appendChild(controls);
+
+// Перенос горячих фраз выше
+const hotkeys = document.querySelector(".footer-buttons");
+inputPanel.appendChild(hotkeys);
+
+// Обработка ввода
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+
+function appendMessage(text, isUser) {
+  const msg = document.createElement("div");
+  msg.className = isUser ? "from-user" : "from-bot";
+  msg.style.cssText = "margin:6px 0;padding:10px 14px;border-radius:10px;max-width:80%;background:"+(isUser?"#00f2ff33":"#ffffff22")+";align-self:"+(isUser?"flex-end":"flex-start")+";";
+  msg.innerText = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  appendMessage(text, true);
+  messages.push({ role: "user", content: text });
+  chatInput.value = "";
+
+  const res = await fetch(OPENAI_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, userId })
+  });
+  const data = await res.json();
+  const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+  appendMessage(reply, false);
+  messages.push({ role: "assistant", content: reply });
+
+  const lower = reply.toLowerCase();
+  if (lower.includes("оставьте") || lower.includes("контакт") || lower.includes("свяжемся") || lower.includes("телефон")) {
+    showPopupForm();
+  }
+}
+
+function startVoiceInput() {
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "ru-RU";
+  recognition.start();
+  recognition.onresult = (e) => {
+    chatInput.value = e.results[0][0].transcript;
+  };
+}
+
+function showPopupForm() {
+  document.getElementById("lead-popup").style.display = "block";
+}
+
+function submitLeadPopup() {
+  const phone = document.getElementById("popup-phone").value;
+  fetch(LEAD_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, userId, messages })
+  });
+  document.getElementById("lead-popup").innerHTML = "<b>Спасибо!</b>";
+}
+
+// Маска телефона
+IMask(document.getElementById("popup-phone"), {
+  mask: '+{7} (000) 000-00-00'
+});
+</script>
 </body>
 </html>
