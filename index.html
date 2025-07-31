@@ -648,35 +648,43 @@ function speakText(text) {
 
 <!-- Маска и логика отправки формы -->
 <script>
-  IMask(document.getElementById('leadPhone'), {
-    mask: '+{7} (000) 000-00-00'
+  document.addEventListener("DOMContentLoaded", () => {
+    IMask(document.getElementById("leadPhone"), {
+      mask: "+{7} (000) 000-00-00"
+    });
+
+    document
+      .querySelector("#leadPopup button")
+      .addEventListener("click", async () => {
+        const phone = document.getElementById("leadPhone").value.trim();
+        if (!phone || phone.length < 18) {
+          alert("Введите корректный номер телефона");
+          return;
+        }
+
+        const context = messages
+          .map((m) => `${m.role === "user" ? "Пользователь" : "Анна"}: ${m.content}`)
+          .join("\n");
+
+        try {
+          const res = await fetch(LEAD_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, userId, log: context }),
+          });
+
+          if (!res.ok) throw new Error("Ошибка при отправке");
+          alert("Заявка отправлена!");
+          document.getElementById("leadPopup").style.display = "none";
+          document.getElementById("leadPhone").value = "";
+        } catch (err) {
+          console.error(err);
+          alert("Ошибка отправки");
+        }
+      });
   });
-<script>
-  IMask(document.getElementById('leadPhone'), {
-    mask: '+{7} (000) 000-00-00'
-  });
-
-  function submitLead() {
-    const phone = document.getElementById("leadPhone").value.trim();
-    if (!phone) return alert("Введите номер");
-
-    const context = messages.map(m =>
-      `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`
-    ).join("\n");
-
-    fetch(LEAD_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, userId, log: context })
-    })
-    .then(() => {
-      alert("Заявка отправлена!");
-      document.getElementById("leadPopup").style.display = "none";
-      document.getElementById("leadPhone").value = "";
-    })
-    .catch(() => alert("Ошибка отправки"));
-  }
 </script>
 </body>
 </html>
+
 
