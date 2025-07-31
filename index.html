@@ -639,6 +639,36 @@ function speakText(text) {
     el.style.display = el.style.display === 'block' ? 'none' : 'block';
   }
 </script>
+<!-- Всплывающая форма GPT -->
+<div id="leadPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:9999; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff;">
+  <div id="leadTitle" style="margin-bottom:15px; font-size:16px; line-height:1.4;"></div>
+  <input id="leadPhone" placeholder="+7 (___) ___-__-__" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px;" />
+  <button onclick="submitLead()" style="width:100%; padding:12px; border:none; border-radius:8px; background-color:#00f2ff; color:#000; font-weight:bold; cursor:pointer;">Оставить заявку</button>
+</div>
+
+<!-- Маска и логика отправки формы -->
+<script>
+  IMask(document.getElementById('leadPhone'), {
+    mask: '+{7} (000) 000-00-00'
+  });
+
+  function submitLead() {
+    const phone = document.getElementById("leadPhone").value.trim();
+    if (!phone) return alert("Введите номер");
+
+    fetch(LEAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, userId })
+    })
+      .then(() => {
+        alert("Заявка отправлена!");
+        document.getElementById("leadPopup").style.display = "none";
+        document.getElementById("leadPhone").value = "";
+      })
+      .catch(() => alert("Ошибка отправки"));
+  }
+</script>
 
 </body>
 </html>
