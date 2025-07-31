@@ -651,46 +651,49 @@ function speakText(text) {
 <script src="https://unpkg.com/imask"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Маска
     IMask(document.getElementById("leadPhone"), {
       mask: "+{7} (000) 000-00-00"
     });
 
-    // Обработка клика по кнопке
     document.getElementById("leadSubmitBtn").addEventListener("click", async () => {
+      const name = document.getElementById("leadName").value.trim();
       const phone = document.getElementById("leadPhone").value.trim();
-      const log = messages.map(m =>
-        `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`
-      ).join("\n");
 
-      if (!phone || phone.length < 18) {
-        alert("Введите корректный номер телефона");
+      if (!name || !phone || phone.length < 18) {
+        alert("Введите имя и корректный номер телефона");
         return;
       }
 
-      if (!log || log.length < 10) {
+      if (!Array.isArray(messages) || messages.length === 0) {
         alert("Сначала пообщайтесь с ботом");
         return;
       }
 
+      const payload = {
+        name,
+        phone,
+        userId,
+        messages
+      };
+
       try {
-        const res = await fetch(LEAD_URL, {
+        const res = await fetch("https://openai-gpt-proxy-sdox.onrender.com/lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phone,
-            userId,
-            log
-          })
+          body: JSON.stringify(payload)
         });
 
-        if (!res.ok) throw new Error("Сервер не ответил");
+        const data = await res.text();
+        console.log("Ответ от сервера:", data);
+
+        if (!res.ok) throw new Error("Ошибка: " + res.status);
 
         alert("Заявка отправлена!");
         document.getElementById("leadPopup").style.display = "none";
+        document.getElementById("leadName").value = "";
         document.getElementById("leadPhone").value = "";
       } catch (err) {
-        console.error(err);
+        console.error("Ошибка при отправке:", err);
         alert("Ошибка при отправке");
       }
     });
