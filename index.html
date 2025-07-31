@@ -441,7 +441,10 @@ function sendMessage() {
       const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
       appendMessage(reply, false);
       messages.push({ role: "assistant", content: reply });
-      if (triggerForm) document.querySelector("form")?.scrollIntoView({ behavior: "smooth" });
+      if (triggerForm) {
+        document.getElementById("leadTitle").innerText = reply;
+        document.getElementById("leadPopup").style.display = "block";
+      }
     })
     .catch(err => {
       appendMessage("Ошибка запроса", false);
