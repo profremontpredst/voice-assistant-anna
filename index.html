@@ -656,40 +656,27 @@ function speakText(text) {
     mask: '+{7} (000) 000-00-00'
   });
 
-  async function submitLead() {
+  function submitLead() {
     const phone = document.getElementById("leadPhone").value.trim();
     if (!phone) return alert("Введите номер");
 
-    // Собираем весь диалог в лог
     const context = messages.map(m =>
       `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`
     ).join("\n");
 
-    const lead = {
-      phone,
-      userId,
-      log: context
-    };
-
-    try {
-      const res = await fetch(LEAD_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lead)
-      });
-
-      if (res.ok) {
-        alert("Заявка отправлена!");
-        document.getElementById("leadPopup").style.display = "none";
-        document.getElementById("leadPhone").value = "";
-      } else {
-        alert("Ошибка при отправке");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Сервер недоступен");
-    }
+    fetch(LEAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, userId, log: context })
+    })
+    .then(() => {
+      alert("Заявка отправлена!");
+      document.getElementById("leadPopup").style.display = "none";
+      document.getElementById("leadPhone").value = "";
+    })
+    .catch(() => alert("Ошибка отправки"));
   }
 </script>
 </body>
 </html>
+
