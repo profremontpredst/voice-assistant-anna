@@ -651,24 +651,45 @@ function speakText(text) {
   IMask(document.getElementById('leadPhone'), {
     mask: '+{7} (000) 000-00-00'
   });
+<script>
+  IMask(document.getElementById('leadPhone'), {
+    mask: '+{7} (000) 000-00-00'
+  });
 
-  function submitLead() {
+  async function submitLead() {
     const phone = document.getElementById("leadPhone").value.trim();
     if (!phone) return alert("Введите номер");
 
-    fetch(LEAD_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, userId })
-    })
-      .then(() => {
+    // Собираем весь диалог в лог
+    const context = messages.map(m =>
+      `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`
+    ).join("\n");
+
+    const lead = {
+      phone,
+      userId,
+      log: context
+    };
+
+    try {
+      const res = await fetch(LEAD_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lead)
+      });
+
+      if (res.ok) {
         alert("Заявка отправлена!");
         document.getElementById("leadPopup").style.display = "none";
         document.getElementById("leadPhone").value = "";
-      })
-      .catch(() => alert("Ошибка отправки"));
+      } else {
+        alert("Ошибка при отправке");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Сервер недоступен");
+    }
   }
 </script>
-
 </body>
 </html>
