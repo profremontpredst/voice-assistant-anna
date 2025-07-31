@@ -651,42 +651,43 @@ function speakText(text) {
 <script src="https://unpkg.com/imask"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Маска на телефон
+    // Маска
     IMask(document.getElementById("leadPhone"), {
       mask: "+{7} (000) 000-00-00"
     });
 
-    // Клик по кнопке формы
+    // Обработка клика по кнопке
     document.getElementById("leadSubmitBtn").addEventListener("click", async () => {
-      const name = document.getElementById("leadName").value.trim();
       const phone = document.getElementById("leadPhone").value.trim();
-
-      if (!name) {
-        alert("Введите имя");
-        return;
-      }
+      const log = messages.map(m =>
+        `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`
+      ).join("\n");
 
       if (!phone || phone.length < 18) {
         alert("Введите корректный номер телефона");
         return;
       }
 
-      const log = messages
-        .map(m => `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`)
-        .join("\n");
+      if (!log || log.length < 10) {
+        alert("Сначала пообщайтесь с ботом");
+        return;
+      }
 
       try {
         const res = await fetch(LEAD_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, userId, log })
+          body: JSON.stringify({
+            phone,
+            userId,
+            log
+          })
         });
 
-        if (!res.ok) throw new Error("Ошибка при отправке");
+        if (!res.ok) throw new Error("Сервер не ответил");
 
         alert("Заявка отправлена!");
         document.getElementById("leadPopup").style.display = "none";
-        document.getElementById("leadName").value = "";
         document.getElementById("leadPhone").value = "";
       } catch (err) {
         console.error(err);
