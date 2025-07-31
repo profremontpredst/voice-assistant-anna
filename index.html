@@ -642,49 +642,58 @@ function speakText(text) {
 <!-- Всплывающая форма GPT -->
 <div id="leadPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:9999; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff;">
   <div id="leadTitle" style="margin-bottom:15px; font-size:16px; line-height:1.4;"></div>
+  <input id="leadName" placeholder="Ваше имя" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px;" />
   <input id="leadPhone" placeholder="+7 (___) ___-__-__" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px;" />
-  <button onclick="submitLead()" style="width:100%; padding:12px; border:none; border-radius:8px; background-color:#00f2ff; color:#000; font-weight:bold; cursor:pointer;">Оставить заявку</button>
+  <button id="leadSubmitBtn" style="width:100%; padding:12px; border:none; border-radius:8px; background-color:#00f2ff; color:#000; font-weight:bold; cursor:pointer;">Оставить заявку</button>
 </div>
 
 <!-- Маска и логика отправки формы -->
+<script src="https://unpkg.com/imask"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+    // Маска на телефон
     IMask(document.getElementById("leadPhone"), {
       mask: "+{7} (000) 000-00-00"
     });
 
-    document
-      .querySelector("#leadPopup button")
-      .addEventListener("click", async () => {
-        const phone = document.getElementById("leadPhone").value.trim();
-        if (!phone || phone.length < 18) {
-          alert("Введите корректный номер телефона");
-          return;
-        }
+    // Клик по кнопке формы
+    document.getElementById("leadSubmitBtn").addEventListener("click", async () => {
+      const name = document.getElementById("leadName").value.trim();
+      const phone = document.getElementById("leadPhone").value.trim();
 
-        const context = messages
-          .map((m) => `${m.role === "user" ? "Пользователь" : "Анна"}: ${m.content}`)
-          .join("\n");
+      if (!name) {
+        alert("Введите имя");
+        return;
+      }
 
-        try {
-          const res = await fetch(LEAD_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, userId, log: context }),
-          });
+      if (!phone || phone.length < 18) {
+        alert("Введите корректный номер телефона");
+        return;
+      }
 
-          if (!res.ok) throw new Error("Ошибка при отправке");
-          alert("Заявка отправлена!");
-          document.getElementById("leadPopup").style.display = "none";
-          document.getElementById("leadPhone").value = "";
-        } catch (err) {
-          console.error(err);
-          alert("Ошибка отправки");
-        }
-      });
+      const log = messages
+        .map(m => `${m.role === 'user' ? 'Пользователь' : 'Анна'}: ${m.content}`)
+        .join("\n");
+
+      try {
+        const res = await fetch(LEAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, userId, log })
+        });
+
+        if (!res.ok) throw new Error("Ошибка при отправке");
+
+        alert("Заявка отправлена!");
+        document.getElementById("leadPopup").style.display = "none";
+        document.getElementById("leadName").value = "";
+        document.getElementById("leadPhone").value = "";
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка при отправке");
+      }
+    });
   });
 </script>
 </body>
 </html>
-
-
