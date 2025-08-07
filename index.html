@@ -699,5 +699,80 @@ function speakText(text) {
     });
   });
 </script>
+  <style>
+  .ai-float-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 99999;
+    padding: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .ai-float-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  #ai-chat-frame {
+    position: fixed;
+    bottom: 20px;
+    right: 100px;
+    width: 340px;
+    height: 520px;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    z-index: 99998;
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    #ai-chat-frame {
+      bottom: 100px;
+      right: 20px;
+    }
+  }
+</style>
+
+<script>
+  window.onload = function () {
+    const button = document.createElement('button');
+    button.className = 'ai-float-button';
+    button.title = 'Открыть AI-ассистента';
+
+    const img = document.createElement('img');
+    img.src = 'https://i.postimg.cc/mgP268Zt/96f08734-0442-48ea-bd9e-e3e25cb92060-1.png';
+    img.alt = 'AI';
+
+    button.appendChild(img);
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'ai-chat-frame';
+    iframe.src = 'https://gpt-widget.onrender.com';
+    iframe.allow = 'microphone';
+
+    button.onclick = function () {
+      iframe.style.display = (iframe.style.display === 'block') ? 'none' : 'block';
+    };
+
+    document.body.appendChild(button);
+    document.body.appendChild(iframe);
+
+    window.addEventListener("message", (event) => {
+      if (event.data === "open-widget") {
+        iframe.style.display = 'block';
+      }
+    });
+  };
+</script>
 </body>
 </html>
