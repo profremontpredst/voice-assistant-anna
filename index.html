@@ -410,9 +410,9 @@
     }
   </script>
   <script>
-const OPENAI_PROXY_URL = "https://openai-gpt-proxy-sdox.onrender.com/gpt";
-const ELEVENLABS_STREAM_URL = "https://elevenlabs-proxy-c781.onrender.com/stream";
-const LEAD_URL = "https://openai-gpt-proxy-sdox.onrender.com/lead";
+const OPENAI_PROXY_URL = "https://openai-gpt-proxy-mcnj.onrender.com/gpt";
+const ELEVENLABS_STREAM_URL = "https://elevenlabs-proxy-1o1s.onrender.com/stream";
+const LEAD_URL = "https://openai-gpt-proxy-mcnj.onrender.com/lead";
 
 const chatBox = document.querySelector(".chat-box");
 const chatInput = document.querySelector(".chat-input");
@@ -677,7 +677,7 @@ function speakText(text) {
       };
 
       try {
-        const res = await fetch("https://openai-gpt-proxy-sdox.onrender.com/lead", {
+        const res = await fetch("https://openai-gpt-proxy-mcnj.onrender.com/lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
