@@ -510,28 +510,27 @@ function startVoiceDialog() {
   };
 
   recognition.onresult = async (event) => {
-    const text = event.results[event.results.length - 1][0].transcript;
-    status.innerText = "🗣 " + text;
-    messages.push({ role: "user", content: text });
+  const text = event.results[event.results.length - 1][0].transcript;
+  status.innerText = "🗣 " + text;
+  messages.push({ role: "user", content: text });
 
-    try {
-      const res = await fetch(OPENAI_PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, userId, mode: "voice" })
-      });
+  try {
+    const res = await fetch(OPENAI_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, userId, mode: "voice" })
+    });
 
-      const data = await res.json();
-      const reply = data?.choices?.[0]?.message?.content || "Ошибка";
-      messages.push({ role: "assistant", content: reply });
+    const data = await res.json();
+    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+    messages.push({ role: "assistant", content: reply });
 
-      speakText(reply, () => {
-        if (isListening) recognition.start(); // авто-прослушка
-      });
-    } catch (err) {
-      console.error("Ошибка GPT:", err);
-    }
-  };
+    // новый вызов без cb
+    speakText(reply);
+  } catch (err) {
+    console.error("Ошибка GPT:", err);
+  }
+};
 
   recognition.onend = () => {
     if (isListening) recognition.start(); // перезапуск если оборвало
@@ -540,38 +539,41 @@ function startVoiceDialog() {
   recognition.start();
 }
 
-function speakText(text, cb) {
-  fetch(ELEVENLABS_STREAM_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
-  })
-    .then(res => res.blob())
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.onended = () => {
-        URL.revokeObjectURL(url);
-        if (cb) cb();
-      };
-      audio.play();
-    })
-    .catch(err => console.error("Ошибка озвучки:", err));
-}
+async function speakText(text) {
+  try {
+    // стопаем рекогнишен пока говорим (чтобы бот сам себя не слышал)
+    if (recognition && isListening) {
+      recognition.stop();
+    }
 
-function speakText(text) {
-  fetch(ELEVENLABS_STREAM_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
-  })
-    .then(res => res.blob())
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.play();
-    })
-    .catch(err => console.error("Ошибка озвучки:", err));
+    const r = await fetch(ELEVENLABS_STREAM_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    if (!r.ok) {
+      console.error("TTS bad status:", r.status);
+      return;
+    }
+
+    const blob = await r.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = new Audio(url);
+    a.playsInline = true;
+
+    a.onended = () => {
+      URL.revokeObjectURL(url);
+      // после окончания речи снова включаем слушание
+      if (isListening && recognition) {
+        recognition.start();
+      }
+    };
+
+    await a.play().catch(()=>{});
+  } catch (e) {
+    console.error("speakText error:", e?.message || e);
+  }
 }
 </script>
   <!-- Интеграции в мессенджеры + форма -->
