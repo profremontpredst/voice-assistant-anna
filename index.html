@@ -510,30 +510,33 @@ function startVoiceDialog() {
   };
 
   recognition.onresult = async (event) => {
-  const text = event.results[event.results.length - 1][0].transcript;
-  status.innerText = "🗣 " + text;
-  messages.push({ role: "user", content: text });
+    const text = event.results[event.results.length - 1][0].transcript;
+    status.innerText = "🗣 " + text;
+    messages.push({ role: "user", content: text });
 
-  try {
-    const res = await fetch(OPENAI_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, userId, mode: "voice" })
-    });
+    try {
+      const res = await fetch(OPENAI_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages, userId, mode: "voice" })
+      });
 
-    const data = await res.json();
-    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
-    messages.push({ role: "assistant", content: reply });
+      const data = await res.json();
+      const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+      messages.push({ role: "assistant", content: reply });
 
-    // новый вызов без cb
-    speakText(reply);
-  } catch (err) {
-    console.error("Ошибка GPT:", err);
-  }
-};
+      // говорим, а микрофон перезапустится только ПОСЛЕ onended
+      speakText(reply);
+    } catch (err) {
+      console.error("Ошибка GPT:", err);
+    }
+  };
 
   recognition.onend = () => {
-    if (isListening) recognition.start(); // перезапуск если оборвало
+    // ⚠️ убираем авто-старт тут, иначе будет цикл!
+    if (isListening) {
+      // оставляем пустым — speakText сам перезапустит
+    }
   };
 
   recognition.start();
@@ -541,9 +544,8 @@ function startVoiceDialog() {
 
 async function speakText(text) {
   try {
-    // стопаем рекогнишен пока говорим (чтобы бот сам себя не слышал)
     if (recognition && isListening) {
-      recognition.stop();
+      recognition.stop(); // стопаем пока говорим
     }
 
     const r = await fetch(ELEVENLABS_STREAM_URL, {
@@ -564,7 +566,7 @@ async function speakText(text) {
 
     a.onended = () => {
       URL.revokeObjectURL(url);
-      // после окончания речи снова включаем слушание
+      // 🔥 только после окончания речи — снова стартуем микрофон
       if (isListening && recognition) {
         recognition.start();
       }
