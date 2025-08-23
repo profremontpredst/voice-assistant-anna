@@ -434,6 +434,7 @@ function sendMessage() {
   if (!chatInput || chatInput.disabled) return;
   const text = chatInput.value.trim();
   if (!text) return;
+
   appendMessage(text, true);
   messages.push({ role: "user", content: text });
   chatInput.value = "";
@@ -441,15 +442,19 @@ function sendMessage() {
   fetch(OPENAI_PROXY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, userId, mode: "text" })
+    body: JSON.stringify({
+      messages,           // ⚡️ всегда вся история
+      userId,
+      mode: "text"
+    })
   })
     .then(res => res.json())
     .then(data => {
       const reply = data?.choices?.[0]?.message?.content || "Ошибка";
-      const triggerForm = data?.choices?.[0]?.message?.triggerForm || false;
       appendMessage(reply, false);
       messages.push({ role: "assistant", content: reply });
-      if (triggerForm) {
+
+      if (data?.triggerForm) {
         document.getElementById("leadTitle").innerText = reply;
         document.getElementById("leadPopup").style.display = "block";
       }
@@ -510,27 +515,31 @@ function startVoiceDialog() {
   };
 
   recognition.onresult = async (event) => {
-    const text = event.results[event.results.length - 1][0].transcript;
-    status.innerText = "🗣 " + text;
-    messages.push({ role: "user", content: text });
+  const text = event.results[event.results.length - 1][0].transcript;
+  status.innerText = "🗣 " + text;
 
-    try {
-      const res = await fetch(OPENAI_PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, userId, mode: "voice" })
-      });
+  messages.push({ role: "user", content: text });
 
-      const data = await res.json();
-      const reply = data?.choices?.[0]?.message?.content || "Ошибка";
-      messages.push({ role: "assistant", content: reply });
+  try {
+    const res = await fetch(OPENAI_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages,           // ⚡️ всегда вся история
+        userId,
+        mode: "voice"
+      })
+    });
 
-      // говорим, а микрофон перезапустится только ПОСЛЕ onended
-      speakText(reply);
-    } catch (err) {
-      console.error("Ошибка GPT:", err);
-    }
-  };
+    const data = await res.json();
+    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+
+    messages.push({ role: "assistant", content: reply });
+    speakText(reply);
+  } catch (err) {
+    console.error("Ошибка GPT:", err);
+  }
+};
 
   recognition.onend = () => {
     // ⚠️ убираем авто-старт тут, иначе будет цикл!
