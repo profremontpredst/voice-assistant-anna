@@ -718,10 +718,9 @@ async function speakText(text) {
 
 <!-- окно благодарности -->
 <div id="leadThanks" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:10000; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff; text-align:center;">
-  <div id="leadThanksText" style="font-size:16px; line-height:1.4;"></div>
+  <div style="font-size:16px; line-height:1.4;">✅ Спасибо за заявку, скоро свяжемся с вами</div>
 </div>
 
-<!-- Маска и логика -->
 <script src="https://unpkg.com/imask"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -729,7 +728,7 @@ async function speakText(text) {
       mask: "+{7} (000) 000-00-00"
     });
 
-    // закрыть форму кликом на фон
+    // закрыть форму/спасибо кликом на фон
     document.getElementById("leadOverlay").addEventListener("click", () => {
       document.getElementById("leadPopup").style.display = "none";
       document.getElementById("leadThanks").style.display = "none";
@@ -743,7 +742,7 @@ async function speakText(text) {
       btn.disabled = true;
 
       const name = document.getElementById("leadName").value.trim();
-      let phone = document.getElementById("leadPhone").value.replace(/\D/g, ""); // только цифры
+      let phone = document.getElementById("leadPhone").value.replace(/\D/g, "");
 
       if (!name || phone.length < 10) {
         alert("Введите имя и корректный номер телефона");
@@ -762,39 +761,28 @@ async function speakText(text) {
 
       const payload = { name, phone, userId, messages };
 
+      // сразу показываем спасибо
+      document.getElementById("leadPopup").style.display = "none";
+      document.getElementById("leadThanks").style.display = "block";
+      document.getElementById("leadOverlay").style.display = "block";
+
+      // через 3 секунды закрываем
+      setTimeout(() => {
+        document.getElementById("leadOverlay").style.display = "none";
+        document.getElementById("leadThanks").style.display = "none";
+        document.getElementById("leadName").value = "";
+        document.getElementById("leadPhone").value = "";
+      }, 3000);
+
+      // отправляем на сервер
       try {
-        const res = await fetch("https://openai-gpt-proxy-mcnj.onrender.com/lead", {
+        await fetch("https://openai-gpt-proxy-mcnj.onrender.com/lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-
-        if (!res.ok) throw new Error("Ошибка: " + res.status);
-        const data = await res.json();
-
-        // показываем ответ GPT во всплывающем окне
-        document.getElementById("leadPopup").style.display = "none";
-        document.getElementById("leadThanksText").innerText = data.message || "✅ Мы вам перезвоним!";
-        document.getElementById("leadOverlay").style.display = "block";
-        document.getElementById("leadThanks").style.display = "block";
-
-        // закрыть через 3 секунды
-        setTimeout(() => {
-          document.getElementById("leadOverlay").style.display = "none";
-          document.getElementById("leadThanks").style.display = "none";
-          document.getElementById("leadName").value = "";
-          document.getElementById("leadPhone").value = "";
-        }, 3000);
       } catch (err) {
         console.error("Ошибка при отправке:", err);
-        document.getElementById("leadPopup").style.display = "none";
-        document.getElementById("leadThanksText").innerText = "❌ Ошибка при отправке";
-        document.getElementById("leadOverlay").style.display = "block";
-        document.getElementById("leadThanks").style.display = "block";
-        setTimeout(() => {
-          document.getElementById("leadOverlay").style.display = "none";
-          document.getElementById("leadThanks").style.display = "none";
-        }, 3000);
       } finally {
         btn.disabled = false;
       }
