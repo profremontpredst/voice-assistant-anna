@@ -708,7 +708,7 @@ async function speakText(text) {
 <!-- затемнение -->
 <div id="leadOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9998;"></div>
 
-<!-- сама форма -->
+<!-- форма -->
 <div id="leadPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:9999; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff;">
   <div id="leadTitle" style="margin-bottom:15px; font-size:16px; line-height:1.4;"></div>
   <input id="leadName" placeholder="Ваше имя" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px;" />
@@ -716,7 +716,12 @@ async function speakText(text) {
   <button id="leadSubmitBtn" style="width:100%; padding:12px; border:none; border-radius:8px; background-color:#00f2ff; color:#000; font-weight:bold; cursor:pointer;">Оставить заявку</button>
 </div>
 
-<!-- Маска и логика отправки формы -->
+<!-- окно благодарности -->
+<div id="leadThanks" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:10000; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff; text-align:center;">
+  <div id="leadThanksText" style="font-size:16px; line-height:1.4;"></div>
+</div>
+
+<!-- Маска и логика -->
 <script src="https://unpkg.com/imask"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -727,20 +732,28 @@ async function speakText(text) {
     // закрыть форму кликом на фон
     document.getElementById("leadOverlay").addEventListener("click", () => {
       document.getElementById("leadPopup").style.display = "none";
+      document.getElementById("leadThanks").style.display = "none";
       document.getElementById("leadOverlay").style.display = "none";
     });
 
-    document.getElementById("leadSubmitBtn").addEventListener("click", async () => {
+    document.getElementById("leadSubmitBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const btn = e.target;
+      if (btn.disabled) return;
+      btn.disabled = true;
+
       const name = document.getElementById("leadName").value.trim();
       let phone = document.getElementById("leadPhone").value.replace(/\D/g, ""); // только цифры
 
       if (!name || phone.length < 10) {
         alert("Введите имя и корректный номер телефона");
+        btn.disabled = false;
         return;
       }
 
       if (!Array.isArray(messages) || messages.length === 0) {
         alert("Сначала пообщайтесь с ботом");
+        btn.disabled = false;
         return;
       }
 
@@ -757,22 +770,33 @@ async function speakText(text) {
         });
 
         if (!res.ok) throw new Error("Ошибка: " + res.status);
+        const data = await res.json();
 
-        // сообщение в форме
-        document.getElementById("leadTitle").innerText = "✅ Мы вам перезвоним!";
+        // показываем ответ GPT во всплывающем окне
+        document.getElementById("leadPopup").style.display = "none";
+        document.getElementById("leadThanksText").innerText = data.message || "✅ Мы вам перезвоним!";
+        document.getElementById("leadOverlay").style.display = "block";
+        document.getElementById("leadThanks").style.display = "block";
+
+        // закрыть через 3 секунды
         setTimeout(() => {
-          document.getElementById("leadPopup").style.display = "none";
           document.getElementById("leadOverlay").style.display = "none";
+          document.getElementById("leadThanks").style.display = "none";
           document.getElementById("leadName").value = "";
           document.getElementById("leadPhone").value = "";
-        }, 2000);
+        }, 3000);
       } catch (err) {
         console.error("Ошибка при отправке:", err);
-        document.getElementById("leadTitle").innerText = "❌ Ошибка при отправке";
+        document.getElementById("leadPopup").style.display = "none";
+        document.getElementById("leadThanksText").innerText = "❌ Ошибка при отправке";
+        document.getElementById("leadOverlay").style.display = "block";
+        document.getElementById("leadThanks").style.display = "block";
         setTimeout(() => {
-          document.getElementById("leadPopup").style.display = "none";
           document.getElementById("leadOverlay").style.display = "none";
-        }, 2000);
+          document.getElementById("leadThanks").style.display = "none";
+        }, 3000);
+      } finally {
+        btn.disabled = false;
       }
     });
   });
