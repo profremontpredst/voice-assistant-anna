@@ -494,15 +494,19 @@ let isListening = false;
 function startVoiceDialog() {
   const status = document.getElementById("voice-status");
   const waveform = document.getElementById("waveform");
+  const micBtn = document.querySelector(".mic-button");
 
   if (isListening) {
+    // стоп
     recognition.stop();
     status.innerText = "Нажмите на микрофон, чтобы начать";
     waveform.classList.remove("listening");
+    micBtn.style.backgroundImage = "url('https://img.icons8.com/ios-filled/50/ffffff/microphone.png')";
     isListening = false;
     return;
   }
 
+  // старт
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = "ru-RU";
   recognition.continuous = true;
@@ -511,40 +515,40 @@ function startVoiceDialog() {
   recognition.onstart = () => {
     status.innerText = "🎤 Слушаю...";
     waveform.classList.add("listening");
+    micBtn.style.backgroundImage = "url('https://img.icons8.com/ios-filled/50/ffffff/stop.png')";
     isListening = true;
   };
 
   recognition.onresult = async (event) => {
-  const text = event.results[event.results.length - 1][0].transcript;
-  status.innerText = "🗣 " + text;
+    const text = event.results[event.results.length - 1][0].transcript;
+    status.innerText = "🗣 " + text;
 
-  messages.push({ role: "user", content: text });
+    messages.push({ role: "user", content: text });
 
-  try {
-    const res = await fetch(OPENAI_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages,           // ⚡️ всегда вся история
-        userId,
-        mode: "voice"
-      })
-    });
+    try {
+      const res = await fetch(OPENAI_PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages,
+          userId,
+          mode: "voice"
+        })
+      });
 
-    const data = await res.json();
-    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+      const data = await res.json();
+      const reply = data?.choices?.[0]?.message?.content || "Ошибка";
 
-    messages.push({ role: "assistant", content: reply });
-    speakText(reply);
-  } catch (err) {
-    console.error("Ошибка GPT:", err);
-  }
-};
+      messages.push({ role: "assistant", content: reply });
+      speakText(reply);
+    } catch (err) {
+      console.error("Ошибка GPT:", err);
+    }
+  };
 
   recognition.onend = () => {
-    // ⚠️ убираем авто-старт тут, иначе будет цикл!
     if (isListening) {
-      // оставляем пустым — speakText сам перезапустит
+      // оставляем пустым, speakText сам рестартует
     }
   };
 
