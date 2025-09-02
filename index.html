@@ -893,27 +893,21 @@ async function speakText(text) {
    window.addEventListener("message", (event) => {
   const d = event.data;
 
-  // открыть сам виджет
+  // 🔥 открыть виджет
   if (d === "open-widget" || (d && d.type === "open-widget")) {
-    iframe.style.display = 'block';
+    iframe.style.display = "block";
     return;
   }
 
-  // открыть форму (поддержка разных форматов сообщений)
-  const openForm =
-    d === "openLeadForm" ||
-    d === "open-form"    ||
-    (d && (
-      d.type === "openLeadForm" ||
-      d.type === "open-form"    ||
-      d.anna === "openLeadForm" ||
-      d.event === "openLeadForm"
-    ));
-
-  if (openForm) {
-    document.getElementById("leadTitle").innerText = "Оставьте контакты — перезвоним";
-    document.getElementById("leadPopup").style.display = "block";
-    document.getElementById("leadOverlay").style.display = "block";
+  // 🔥 открыть форму
+  if (d === "open-form" || (d && d.type === "open-form")) {
+    const ov = document.getElementById("leadOverlay");
+    const form = document.getElementById("leadPopup");
+    if (ov && form) {
+      ov.style.display = "block";
+      form.style.display = "block";
+    }
+    return;
   }
 });
   };
