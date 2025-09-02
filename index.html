@@ -783,11 +783,11 @@ async function speakText(text) {
         return;
       }
 
-      if (!Array.isArray(messages) || messages.length === 0) {
-        alert("Сначала пообщайтесь с ботом");
-        btn.disabled = false;
-        return;
-      }
+      if (!Array.isArray(messages)) {
+  alert("Ошибка: нет истории диалога");
+  btn.disabled = false;
+  return;
+}
 
       // нормализуем номер
       phone = "+7" + phone.slice(-10);
