@@ -725,10 +725,10 @@ async function speakText(text) {
   }
 </script>
 <!-- затемнение -->
-<div id="leadOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9998;"></div>
+<div id="leadOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:100010;"></div>
 
 <!-- форма -->
-<div id="leadPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:9999; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff;">
+<div id="leadPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:100020; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff;">
   <div id="leadTitle" style="margin-bottom:15px; font-size:16px; line-height:1.4;"></div>
   <input id="leadName" placeholder="Ваше имя" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px;" />
   <input id="leadPhone" placeholder="+7 (___) ___-__-__" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px;" />
@@ -736,7 +736,7 @@ async function speakText(text) {
 </div>
 
 <!-- окно благодарности -->
-<div id="leadThanks" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:10000; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff; text-align:center;">
+<div id="leadThanks" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:#111; color:#fff; padding:20px; border-radius:16px; z-index:100030; max-width:400px; width:90%; box-shadow:0 0 20px #00f2ff; text-align:center;">
   <div style="font-size:16px; line-height:1.4;">✅ Спасибо за заявку, скоро свяжемся с вами</div>
 </div>
 
@@ -876,11 +876,32 @@ async function speakText(text) {
     document.body.appendChild(button);
     document.body.appendChild(iframe);
 
-    window.addEventListener("message", (event) => {
-      if (event.data === "open-widget") {
-        iframe.style.display = 'block';
-      }
-    });
+   window.addEventListener("message", (event) => {
+  const d = event.data;
+
+  // открыть сам виджет
+  if (d === "open-widget" || (d && d.type === "open-widget")) {
+    iframe.style.display = 'block';
+    return;
+  }
+
+  // открыть форму (поддержка разных форматов сообщений)
+  const openForm =
+    d === "openLeadForm" ||
+    d === "open-form"    ||
+    (d && (
+      d.type === "openLeadForm" ||
+      d.type === "open-form"    ||
+      d.anna === "openLeadForm" ||
+      d.event === "openLeadForm"
+    ));
+
+  if (openForm) {
+    document.getElementById("leadTitle").innerText = "Оставьте контакты — перезвоним";
+    document.getElementById("leadPopup").style.display = "block";
+    document.getElementById("leadOverlay").style.display = "block";
+  }
+});
   };
 </script>
 </body>
