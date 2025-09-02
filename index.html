@@ -484,8 +484,21 @@ function sendMessage() {
 function appendMessage(text, isUser) {
   const msg = document.createElement("div");
   msg.className = "message " + (isUser ? "from-user" : "from-bot");
-  msg.style.cssText = "margin-bottom:10px;padding:8px 12px;border-radius:10px;max-width:80%;background:" + (isUser ? "#00f2ff33" : "#ffffff22") + ";align-self:" + (isUser ? "flex-end" : "flex-start") + ";";
-  msg.innerText = text;
+  msg.style.cssText =
+    "margin-bottom:10px;padding:8px 12px;border-radius:10px;max-width:80%;" +
+    (isUser ? "background:#00f2ff33;align-self:flex-end;" : "background:#ffffff22;align-self:flex-start;");
+
+  // если бот прислал [openLeadForm] → сразу открываем форму
+  if (!isUser && text.includes("[openLeadForm]")) {
+    document.getElementById("leadTitle").innerText = text.replace("[openLeadForm]", "").trim();
+    document.getElementById("leadPopup").style.display = "block";
+    document.getElementById("leadOverlay").style.display = "block";
+    // убираем тег из текста для отображения
+    msg.innerText = text.replace("[openLeadForm]", "").trim();
+  } else {
+    msg.innerText = text;
+  }
+
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
