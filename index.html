@@ -549,31 +549,38 @@ function startVoiceDialog() {
   };
 
   recognition.onresult = async (event) => {
-    const text = event.results[event.results.length - 1][0].transcript;
-    status.innerText = "🗣 " + text;
+  const text = event.results[event.results.length - 1][0].transcript;
+  status.innerText = "🗣 " + text;
 
-    messages.push({ role: "user", content: text });
+  messages.push({ role: "user", content: text });
 
-    try {
-      const res = await fetch(OPENAI_PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages,
-          userId,
-          mode: "voice"
-        })
-      });
+  try {
+    const res = await fetch(OPENAI_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages,
+        userId,
+        mode: "voice"
+      })
+    });
 
-      const data = await res.json();
-      const reply = data?.choices?.[0]?.message?.content || "Ошибка";
+    const data = await res.json();
+    const reply = data?.choices?.[0]?.message?.content || "Ошибка";
 
-      messages.push({ role: "assistant", content: reply });
-      speakText(reply);
-    } catch (err) {
-      console.error("Ошибка GPT:", err);
+    // 🔥 проверка на [openLeadForm]
+    if (reply.includes("[openLeadForm]") || data?.triggerForm) {
+      document.getElementById("leadTitle").innerText = reply.replace("[openLeadForm]", "").trim();
+      document.getElementById("leadPopup").style.display = "block";
+      document.getElementById("leadOverlay").style.display = "block";
     }
-  };
+
+    messages.push({ role: "assistant", content: reply });
+    speakText(reply);
+  } catch (err) {
+    console.error("Ошибка GPT:", err);
+  }
+};
 
   recognition.onend = () => {
     if (isListening) {
