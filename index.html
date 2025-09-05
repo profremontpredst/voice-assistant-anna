@@ -685,11 +685,10 @@ async function speakText(text) {
   }
 }
 </script>
-  <!-- Интеграции в мессенджеры + форма -->
-<div class="integration-block" style="margin-top: 100px; background-color: rgba(255,255,255,0.03); border-radius: 20px; padding: 40px 20px; text-align: center;">
-  <h2 style="font-size: 26px; color: #00f2ff; margin-bottom: 20px;">Анну можно добавлять в любые мессенджеры</h2>
+ <div class="integration-block" style="margin-top: 100px; background-color: rgba(255,255,255,0.03); border-radius: 20px; padding: 40px 20px; text-align: center;">
+  <h2 style="font-size: 26px; color: #00f2ff; margin-bottom: 20px;">Анна работает там, где ваши клиенты</h2>
   <p style="font-size: 16px; opacity: 0.85; max-width: 600px; margin: 0 auto 30px;">
-    Интегрируем ИИ в Telegram, WhatsApp, ВКонтакте, Avito и любые другие платформы с API. Бот общается, отвечает на заявки, продаёт и передаёт в CRM.
+    Telegram, WhatsApp, ВКонтакте, Avito и другие платформы. Ассистент принимает запросы, продаёт и фиксирует сделки в CRM.
   </p>
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
     <img src="https://img.icons8.com/ios-filled/50/00f2ff/telegram-app.png" width="40" alt="Telegram"/>
@@ -698,15 +697,65 @@ async function speakText(text) {
     <img src="https://img.icons8.com/ios-filled/50/00f2ff/domain.png" width="40" alt="Avito"/>
     <img src="https://img.icons8.com/ios-filled/50/00f2ff/api.png" width="40" alt="API"/>
   </div>
-  <form onsubmit="event.preventDefault(); alert('Заявка в отдел продаж отправлена');" name="Заявка в отдел продаж" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-    <input type="text" name="name" placeholder="Ваше имя" required style="width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: none;" />
-    <input type="tel" name="phone" id="phone" placeholder="+7 (___) ___-__-__" required style="width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: none;" />
-    <textarea name="message" rows="3" placeholder="Ваш вопрос или задача" style="width: 100%; max-width: 400px; padding: 10px; border-radius: 8px; border: none;"></textarea>
+  <form id="integrationForm" style="display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 400px; margin: 0 auto;">
+    <input type="text" id="intName" placeholder="Ваше имя" required style="width: 100%; padding: 10px; border-radius: 8px; border: none;" />
+    <input type="tel" id="intPhone" placeholder="+7 (___) ___-__-__" required style="width: 100%; padding: 10px; border-radius: 8px; border: none;" />
+    <textarea id="intMessage" rows="3" placeholder="Ваш вопрос или задача" style="width: 100%; padding: 10px; border-radius: 8px; border: none;"></textarea>
     <button type="submit" style="padding: 12px 24px; background-color: #00f2ff; color: #000; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
       Связаться с отделом продаж
     </button>
   </form>
 </div>
+
+<script>
+  document.getElementById("integrationForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("intName").value.trim();
+    let phone = document.getElementById("intPhone").value.replace(/\D/g, "");
+    const message = document.getElementById("intMessage").value.trim();
+
+    if (!name || phone.length < 10) {
+      alert("Введите имя и корректный телефон");
+      return;
+    }
+
+    phone = "+7" + phone.slice(-10);
+
+    const userId = localStorage.getItem("userId") || "user_" + Math.random().toString(36).substr(2, 9);
+
+    const payload = {
+      name,
+      phone,
+      userId,
+      messages: [{ role: "user", content: message }]
+    };
+
+    try {
+      await fetch("https://openai-gpt-proxy-mcnj.onrender.com/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      // показываем "спасибо"
+      document.getElementById("leadThanks").style.display = "block";
+      document.getElementById("leadOverlay").style.display = "block";
+
+      // очистка формы
+      e.target.reset();
+
+      // закрыть через 3 сек
+      setTimeout(() => {
+        document.getElementById("leadThanks").style.display = "none";
+        document.getElementById("leadOverlay").style.display = "none";
+      }, 3000);
+
+    } catch (err) {
+      console.error("Ошибка при отправке:", err);
+      alert("Ошибка при отправке заявки");
+    }
+  });
+</script>
 
 <!-- Подключение маски телефона -->
 <script src="https://unpkg.com/imask"></script>
