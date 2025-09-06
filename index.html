@@ -551,52 +551,68 @@ _tmr.push({id: "3687139", type: "pageView", start: (new Date()).getTime()});
   }
 </style>
   
-<!-- ===== READY SOLUTIONS ===== -->
-<section id="ready-solutions" style="margin-top:100px;">
+<!-- ===== READY SOLUTIONS (SCROLL ROW) ===== -->
+<section id="ready-solutions" style="margin-top:100px; position:relative;">
   <div style="max-width:1100px;margin:0 auto;padding:40px 20px;background:rgba(255,255,255,0.03);border-radius:20px;">
-    <h2 style="text-align:center;font-size:28px;margin:0 0 30px;">Готовые решения для вашего бизнеса</h2>
+    <h2 style="text-align:center;font-size:28px;margin:0 0 24px;">Готовые решения для вашего бизнеса</h2>
 
-    <div style="display:flex;gap:20px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:10px;">
-      <!-- скрываем скроллбар -->
+    <!-- стрелки -->
+    <button id="solPrev" aria-label="prev"
+      style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:none;border-radius:50%;
+             background:rgba(0,242,255,.25);color:#000;cursor:pointer;backdrop-filter:blur(4px);z-index:2;">‹</button>
+    <button id="solNext" aria-label="next"
+      style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:none;border-radius:50%;
+             background:rgba(0,242,255,.25);color:#000;cursor:pointer;backdrop-filter:blur(4px);z-index:2;">›</button>
+
+    <!-- полоса карточек -->
+    <div id="solutionsRow"
+         style="display:flex;gap:20px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding-bottom:10px;
+                scroll-snap-type:x mandatory;">
+      <!-- прячем полоску, но скролл работает -->
       <style>
-        #ready-solutions div::-webkit-scrollbar {display:none;}
+        #solutionsRow::-webkit-scrollbar{height:8px;}
+        #solutionsRow::-webkit-scrollbar-thumb{background:rgba(0,242,255,.25);border-radius:8px;}
+        @media (min-width:1180px){ /* 5 карточек ровно в ряд без скролла */
+          #solutionsRow{overflow-x:visible;}
+        }
       </style>
 
-      <!-- Виджет на нашем сайте -->
-      <div style="flex:0 0 240px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
-        <img src="https://img.icons8.com/ios-filled/50/00f2ff/domain.png" style="width:40px;margin-bottom:12px;" />
+      <!-- Карточка -->
+      <div style="flex:0 0 20%; min-width:220px; scroll-snap-align:start;
+                  background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
+        <img src="https://img.icons8.com/ios-filled/50/00f2ff/domain.png" style="width:40px;margin-bottom:12px;">
         <h3 style="margin:0 0 8px;color:#00f2ff;font-size:18px;">Виджет на нашем сайте</h3>
         <div style="font-size:16px;font-weight:700;margin-bottom:8px;">2 900 ₽/мес</div>
         <p style="opacity:.85;font-size:13px;">Быстрый старт без вашего сайта</p>
       </div>
 
-      <!-- WhatsApp бот -->
-      <div style="flex:0 0 240px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
-        <img src="https://img.icons8.com/ios-filled/50/00f2ff/whatsapp.png" style="width:40px;margin-bottom:12px;" />
+      <div style="flex:0 0 20%; min-width:220px; scroll-snap-align:start;
+                  background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
+        <img src="https://img.icons8.com/ios-filled/50/00f2ff/whatsapp.png" style="width:40px;margin-bottom:12px;">
         <h3 style="margin:0 0 8px;color:#00f2ff;font-size:18px;">WhatsApp бот</h3>
         <div style="font-size:16px;font-weight:700;margin-bottom:8px;">3 900 ₽/мес</div>
         <p style="opacity:.85;font-size:13px;">Ответы и заявки в WhatsApp</p>
       </div>
 
-      <!-- Telegram бот -->
-      <div style="flex:0 0 240px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
-        <img src="https://img.icons8.com/ios-filled/50/00f2ff/telegram-app.png" style="width:40px;margin-bottom:12px;" />
+      <div style="flex:0 0 20%; min-width:220px; scroll-snap-align:start;
+                  background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
+        <img src="https://img.icons8.com/ios-filled/50/00f2ff/telegram-app.png" style="width:40px;margin-bottom:12px;">
         <h3 style="margin:0 0 8px;color:#00f2ff;font-size:18px;">Telegram бот</h3>
         <div style="font-size:16px;font-weight:700;margin-bottom:8px;">3 900 ₽/мес</div>
         <p style="opacity:.85;font-size:13px;">Бот с голосом и текстом в Telegram</p>
       </div>
 
-      <!-- VK бот -->
-      <div style="flex:0 0 240px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
-        <img src="https://img.icons8.com/ios-filled/50/00f2ff/vk-circled.png" style="width:40px;margin-bottom:12px;" />
+      <div style="flex:0 0 20%; min-width:220px; scroll-snap-align:start;
+                  background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
+        <img src="https://img.icons8.com/ios-filled/50/00f2ff/vk-circled.png" style="width:40px;margin-bottom:12px;">
         <h3 style="margin:0 0 8px;color:#00f2ff;font-size:18px;">ВКонтакте бот</h3>
         <div style="font-size:16px;font-weight:700;margin-bottom:8px;">4 900 ₽/мес</div>
         <p style="opacity:.85;font-size:13px;">Автоответчик и заявки во ВКонтакте</p>
       </div>
 
-      <!-- Avito бот -->
-      <div style="flex:0 0 240px;background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
-        <img src="https://img.icons8.com/ios-filled/50/00f2ff/domain.png" style="width:40px;margin-bottom:12px;" />
+      <div style="flex:0 0 20%; min-width:220px; scroll-snap-align:start;
+                  background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:14px;padding:20px;text-align:center;">
+        <img src="https://img.icons8.com/ios-filled/50/00f2ff/domain.png" style="width:40px;margin-bottom:12px;">
         <h3 style="margin:0 0 8px;color:#00f2ff;font-size:18px;">Avito бот</h3>
         <div style="font-size:16px;font-weight:700;margin-bottom:8px;">4 900 ₽/мес</div>
         <p style="opacity:.85;font-size:13px;">Автоответы и сбор лидов с Avito</p>
@@ -604,6 +620,30 @@ _tmr.push({id: "3687139", type: "pageView", start: (new Date()).getTime()});
     </div>
   </div>
 </section>
+
+<script>
+  (function(){
+    const row = document.getElementById('solutionsRow');
+    const prev = document.getElementById('solPrev');
+    const next = document.getElementById('solNext');
+    const step = 260; // ширина карточки + gap
+
+    prev.onclick = ()=> row.scrollBy({left:-step, behavior:'smooth'});
+    next.onclick = ()=> row.scrollBy({left: step, behavior:'smooth'});
+
+    // drag-to-scroll мышью
+    let isDown=false, startX, scrollLeft;
+    row.addEventListener('mousedown',e=>{isDown=true; startX=e.pageX-row.offsetLeft; scrollLeft=row.scrollLeft;});
+    row.addEventListener('mouseleave',()=>isDown=false);
+    row.addEventListener('mouseup',()=>isDown=false);
+    row.addEventListener('mousemove',e=>{
+      if(!isDown) return;
+      e.preventDefault();
+      const x=e.pageX-row.offsetLeft;
+      row.scrollLeft = scrollLeft - (x-startX);
+    });
+  })();
+</script>
 <!-- ===== /READY SOLUTIONS ===== -->
 
 </div>
