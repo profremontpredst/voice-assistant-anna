@@ -441,23 +441,115 @@ _tmr.push({id: "3687139", type: "pageView", start: (new Date()).getTime()});
     
   </div>
 </div>
-    <div class="value-prop">
-      <h2>Что вы получаете</h2>
-      <div class="value-grid">
-        <div class="value-item">
-          <img src="https://img.icons8.com/ios-filled/50/00f2ff/light-on.png" />
-          <p>Сайт, который работает как сотрудник</p>
-        </div>
-        <div class="value-item">
-          <img src="https://img.icons8.com/ios-filled/50/00f2ff/brainstorm.png" />
-          <p>ИИ, понимающий клиента и помогающий принять решение</p>
-        </div>
-        <div class="value-item">
-          <img src="https://img.icons8.com/ios-filled/50/00f2ff/shield.png" />
-          <p>Контроль над всеми данными и безопасностью</p>
-        </div>
+    <!-- ===== PRICING: SUBSCRIPTION ===== -->
+<section id="pricing" style="margin-top:100px;">
+  <div style="max-width:1100px;margin:0 auto;padding:40px 20px;background:rgba(255,255,255,0.03);border-radius:20px;">
+    <h2 style="text-align:center;font-size:28px;margin:0 0 10px;">Тарифы ассистента Анна</h2>
+    <p style="text-align:center;opacity:.8;margin:0 0 30px;">От умного виджета до системы под ключ</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:20px;">
+      <!-- Card: Умный сайт -->
+      <div style="position:relative;background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.3);border-radius:16px;padding:24px;display:flex;flex-direction:column;">
+        <h3 style="margin:0 0 6px;color:#00f2ff;font-size:22px;">Умный сайт</h3>
+        <div style="font-size:24px;font-weight:800;margin:6px 0 14px;">4 900 ₽/мес</div>
+        <ul style="list-style:none;padding:0;margin:0 0 18px;line-height:1.6;opacity:.95">
+          <li>✔ Голосовой и текстовый виджет 24/7</li>
+          <li>✔ Лид-форма и логирование заявок</li>
+          <li>✔ Интеграция с CRM</li>
+        </ul>
+        <button style="margin-top:auto;width:100%;padding:12px;border:none;border-radius:10px;background:#00f2ff;color:#000;font-weight:700;cursor:pointer;">Подключить</button>
+      </div>
+
+      <!-- Card: Мультиканал (Популярный) -->
+      <div style="position:relative;background:rgba(255,255,255,0.07);border:1px solid rgba(0,242,255,.6);border-radius:16px;padding:24px;box-shadow:0 0 24px rgba(0,242,255,.14);display:flex;flex-direction:column;">
+        <div style="position:absolute;top:-10px;right:16px;background:#00f2ff;color:#000;font-weight:800;font-size:12px;padding:5px 10px;border-radius:999px;">🔥 Популярный</div>
+        <h3 style="margin:0 0 6px;color:#00f2ff;font-size:22px;">Мультиканал</h3>
+        <div style="font-size:24px;font-weight:800;margin:6px 0 14px;">9 900 ₽/мес</div>
+        <ul style="list-style:none;padding:0;margin:0 0 18px;line-height:1.6;opacity:.95">
+          <li>✔ Всё из «Умного сайта»</li>
+          <li>✔ + WhatsApp, Telegram, ВК, Avito</li>
+          <li>✔ Все заявки стекаются в CRM</li>
+        </ul>
+        <button style="margin-top:auto;width:100%;padding:12px;border:none;border-radius:10px;background:#00f2ff;color:#000;font-weight:700;cursor:pointer;">Подключить</button>
+      </div>
+
+      <!-- Card: Enterprise -->
+      <div style="position:relative;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:24px;display:flex;flex-direction:column;">
+        <h3 style="margin:0 0 6px;color:#00f2ff;font-size:22px;">Enterprise</h3>
+        <div style="font-size:24px;font-weight:800;margin:6px 0 14px;">от 29 000 ₽/мес</div>
+        <ul style="list-style:none;padding:0;margin:0 0 18px;line-height:1.6;opacity:.95">
+          <li>✔ Собственные сервера и кастомный голос</li>
+          <li>✔ Интеграции: 1С, Bitrix24, AmoCRM</li>
+          <li>✔ Персональный менеджер и SLA</li>
+        </ul>
+        <button style="margin-top:auto;width:100%;padding:12px;border:none;border-radius:10px;background:#00f2ff;color:#000;font-weight:700;cursor:pointer;">Оставить заявку</button>
       </div>
     </div>
+
+    <div style="margin-top:26px;text-align:center;font-size:15px;opacity:.9;">
+      <b>Дополнительно: Телефония — +2 900 ₽/мес</b><br>
+      Приём/исходящие звонки. Анна берёт звонки вместо колл-центра, разговоры и заявки фиксируются в CRM.
+    </div>
+  </div>
+</section>
+<!-- ===== /PRICING: SUBSCRIPTION ===== -->
+
+<!-- ===== PRICING: IMPLEMENTATION (ONE-TIME) ===== -->
+<section id="implementation" style="margin-top:24px;">
+  <div style="max-width:1100px;margin:0 auto;padding:32px 20px;background:rgba(255,255,255,0.02);border-radius:16px;">
+    <h3 style="text-align:center;font-size:22px;margin:0 0 18px;color:#00f2ff;">Разработка и внедрение (разовый платеж)</h3>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:20px;">
+      <!-- Базовый запуск -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(0,242,255,.25);border-radius:14px;padding:20px;">
+        <div style="font-weight:800;margin-bottom:8px;">Базовый запуск</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:12px;">от 20 000 ₽</div>
+        <ul style="list-style:none;padding:0;margin:0;line-height:1.6;opacity:.95">
+          <li>✔ Подключение виджета на ваш сайт</li>
+          <li>✔ Базовый сценарий Анны</li>
+          <li>✔ Связка с CRM/таблицей</li>
+        </ul>
+      </div>
+
+      <!-- Сайт + Анна -->
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(0,242,255,.4);border-radius:14px;padding:20px;box-shadow:0 0 20px rgba(0,242,255,.12);">
+        <div style="font-weight:800;margin-bottom:8px;">Сайт с Анной</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:12px;">120 000 – 150 000 ₽</div>
+        <ul style="list-style:none;padding:0;margin:0;line-height:1.6;opacity:.95">
+          <li>✔ Лендинг под ваш бизнес</li>
+          <li>✔ Голос/текст, формы, аналитика</li>
+          <li>✔ Настройка сценария и интеграций</li>
+        </ul>
+      </div>
+
+      <!-- Enterprise внедрение -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:20px;">
+        <div style="font-weight:800;margin-bottom:8px;">Enterprise-внедрение</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:12px;">от 200 000 ₽</div>
+        <ul style="list-style:none;padding:0;margin:0;line-height:1.6;opacity:.95">
+          <li>✔ Свои сервера / кастом-голос</li>
+          <li>✔ Глубокие интеграции (1С, Bitrix и др.)</li>
+          <li>✔ Процессы, доступы, безопасность</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin:18px 0 0;opacity:.8;font-size:14px;">
+      * Разработка — разовый платёж. Подписка оплачивается отдельно по выбранному тарифу.
+    </p>
+  </div>
+</section>
+<!-- ===== /PRICING: IMPLEMENTATION ===== -->
+
+<!-- Mobile stack fix -->
+<style>
+  @media (max-width: 900px){
+    #pricing > div, #implementation > div{padding:28px 16px}
+    #pricing div[style*="grid-template-columns"], #implementation div[style*="grid-template-columns"]{
+      grid-template-columns:1fr; 
+    }
+  }
+</style>
   
 <div class="how-we-work">
   <h2>Как мы работаем</h2>
